@@ -45,15 +45,15 @@ int main(void) {
     GPIOButton.GPIO_PinConfig.PinOPType = GPIO_OUT_TYPE_PP;
 
 
-    GPIO_PeriClockControl(GPIOA,ENABLE);
-    GPIO_PeriClockControl(GPIOC,ENABLE);
+    RB_GPIO_PeriClockControl(GPIOA,ENABLE);
+    RB_GPIO_PeriClockControl(GPIOC,ENABLE);
 
-    GPIO_Init(&GPIOLed);
-    GPIO_Init(&GPIOButton);
+    RB_GPIO_Init(&GPIOLed);
+    RB_GPIO_Init(&GPIOButton);
 
     //IRQ Configuration
-    GPIO_IRQPriorityConfig(IRQ_NO_EXTI15_10, IRQ_PRIO_NO15);
-    GPIO_IRQITConfig(IRQ_NO_EXTI15_10,ENABLE);
+    RB_GPIO_IRQPriorityConfig(IRQ_NO_EXTI15_10, IRQ_PRIO_NO15);
+    RB_GPIO_IRQITConfig(IRQ_NO_EXTI15_10,ENABLE);
 
     //
 
@@ -64,8 +64,8 @@ int main(void) {
 
 void EXTI15_10_IRQHandler(void){
 	delay(); //Solve debouncing of the button
-	GPIO_IRQHandling(GPIO_PIN_13);
-	GPIO_TogglePin(GPIOA,GPIO_PIN_5);
+	RB_GPIO_IRQHandling(GPIO_PIN_13);
+	RB_GPIO_TogglePin(GPIOA,GPIO_PIN_5);
 }
 
 

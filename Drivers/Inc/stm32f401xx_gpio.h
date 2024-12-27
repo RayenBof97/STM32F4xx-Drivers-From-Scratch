@@ -1,9 +1,13 @@
-/*
- * stm32f401xx_gpio.h
- *
- *  Created on: Nov 7, 2024
- *      Author: Rayen
- */
+/**
+  ******************************************************************************
+  * @file    stm32f401xx.h
+  * @author  Rayen	Bouafif
+  * @mail    bouafifrayen01@gmail.com
+  * @Tel     (+216)29 049 373
+  * @date    08-11-2024
+  *****************************************************************************
+*
+*/
 
 #ifndef INC_STM32F401XX_GPIO_H_
 #define INC_STM32F401XX_GPIO_H_
@@ -104,30 +108,30 @@ typedef struct{
 /*
  * Peripheral Clock Control
  */
-void GPIO_PeriClockControl(GPIOx_t *pGPIOx, uint8_t State);
+void RB_GPIO_PeriClockControl(GPIOx_t *pGPIOx, uint8_t State);
 
 /*
  * Init and De-init GPIO
  */
-void GPIO_Init(GPIOx_Handler_t *pGPIOHandle);
-void GPIO_DeInit(GPIOx_t *pGPIOx);
+void RB_GPIO_Init(GPIOx_Handler_t *pGPIOHandle);
+void RB_GPIO_DeInit(GPIOx_t *pGPIOx);
 
 /*
  * Data Read and Write
  */
-uint8_t GPIO_ReadInputPin(GPIOx_t *pGPIOx, uint8_t PinNumber);
-uint16_t GPIO_ReadInputPort(GPIOx_t *pGPIOx);
-void GPIO_WriteOutputPin(GPIOx_t *pGPIOx, uint8_t PinNumber, uint8_t value);
-void GPIO_WriteOutputPort(GPIOx_t *pGPIOx,uint16_t value);
-void GPIO_TogglePin(GPIOx_t *pGPIOx, uint8_t PinNumber);
+uint8_t RB_GPIO_ReadInputPin(GPIOx_t *pGPIOx, uint8_t PinNumber);
+uint16_t RB_GPIO_ReadInputPort(GPIOx_t *pGPIOx);
+void RB_GPIO_WriteOutputPin(GPIOx_t *pGPIOx, uint8_t PinNumber, uint8_t value);
+void RB_GPIO_WriteOutputPort(GPIOx_t *pGPIOx,uint16_t value);
+void RB_GPIO_TogglePin(GPIOx_t *pGPIOx, uint8_t PinNumber);
 
 
 /*
  * Interrupt routine
  */
-void GPIO_IRQITConfig(uint8_t IRQNumber, uint8_t state);
-void GPIO_IRQPriorityConfig(uint8_t IRQNumber, uint32_t Priority);
-void GPIO_IRQHandling(uint8_t PinNumber);
+void RB_GPIO_IRQITConfig(uint8_t IRQNumber, uint8_t state);
+void RB_GPIO_IRQPriorityConfig(uint8_t IRQNumber, uint32_t Priority);
+void RB_GPIO_IRQHandling(uint8_t PinNumber);
 
 
 

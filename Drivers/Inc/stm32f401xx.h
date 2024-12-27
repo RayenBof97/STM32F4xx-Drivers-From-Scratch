@@ -1,11 +1,13 @@
-/*
- * stm32f401xx.h
- *
- *  Created on: Sep 26, 2024
- *      Author: Rayen Bouafif
- *
+/**
+  ******************************************************************************
+  * @file    stm32f401xx.h
+  * @author  Rayen	Bouafif
+  * @mail    bouafifrayen01@gmail.com
+  * @Tel     (+216)29 049 373
+  * @date    08-11-2024
+  *****************************************************************************
  *  WARNING : I included the peripherals that I use most of the time and didn't include all of the existing periph
- *  I focused on GPIO , USART ,I2C , SPI Peripherals that i'll be testing after
+ *  I focused on GPIO , USART ,I2C , SPI Peripherals.
  *
  */
 

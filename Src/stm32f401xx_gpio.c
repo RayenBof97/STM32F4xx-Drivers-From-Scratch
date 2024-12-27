@@ -17,7 +17,7 @@
  *
  * @note			- NONE
  */
-void GPIO_PeriClockControl(GPIOx_t *pGPIOx, uint8_t State){
+void RB_GPIO_PeriClockControl(GPIOx_t *pGPIOx, uint8_t State){
 	if (State == ENABLE) {
 			if (pGPIOx == GPIOA) {
 				GPIOA_PCLK_EN();
@@ -65,7 +65,7 @@ void GPIO_PeriClockControl(GPIOx_t *pGPIOx, uint8_t State){
  *
  * @note			- NONE
  */
-void GPIO_Init(GPIOx_Handler_t *pGPIOHandle){
+void RB_GPIO_Init(GPIOx_Handler_t *pGPIOHandle){
 	uint32_t temp = 0 ; //Temporary register
 
 	//Initialise Mode of GPIO
@@ -151,7 +151,7 @@ void GPIO_Init(GPIOx_Handler_t *pGPIOHandle){
  * @note			- NONE
  */
 
-void GPIO_DeInit(GPIOx_t *pGPIOx){
+void RB_GPIO_DeInit(GPIOx_t *pGPIOx){
 
 	if (pGPIOx == GPIOA) {
 	    GPIOA_REG_RESET();
@@ -185,7 +185,7 @@ void GPIO_DeInit(GPIOx_t *pGPIOx){
  *
  * @note			- NONE
  */
-uint8_t GPIO_ReadInputPin(GPIOx_t *pGPIOx, uint8_t PinNumber){
+uint8_t RB_GPIO_ReadInputPin(GPIOx_t *pGPIOx, uint8_t PinNumber){
 	uint8_t temp;
 	temp = (uint8_t)((pGPIOx->IDR >> PinNumber) & 0x00000001);
 	return temp;
@@ -202,7 +202,7 @@ uint8_t GPIO_ReadInputPin(GPIOx_t *pGPIOx, uint8_t PinNumber){
  *
  * @note			- NONE
  */
-uint16_t GPIO_ReadInputPort(GPIOx_t *pGPIOx){
+uint16_t RB_GPIO_ReadInputPort(GPIOx_t *pGPIOx){
 	uint16_t temp;
 	temp = (uint16_t)pGPIOx->IDR;
 	return temp;
@@ -221,7 +221,7 @@ uint16_t GPIO_ReadInputPort(GPIOx_t *pGPIOx){
  *
  * @note			- NONE
  */
-void GPIO_WriteOutputPin(GPIOx_t *pGPIOx, uint8_t PinNumber, uint8_t value){
+void RB_GPIO_WriteOutputPin(GPIOx_t *pGPIOx, uint8_t PinNumber, uint8_t value){
 	if(value == GPIO_PIN_SET)
 	{
 		pGPIOx->ODR |= (1 << PinNumber);
@@ -244,7 +244,7 @@ void GPIO_WriteOutputPin(GPIOx_t *pGPIOx, uint8_t PinNumber, uint8_t value){
  *
  * @note			- NONE
  */
-void GPIO_WriteOutputPort(GPIOx_t *pGPIOx, uint16_t value) {
+void RB_GPIO_WriteOutputPort(GPIOx_t *pGPIOx, uint16_t value) {
 
     pGPIOx->ODR = (pGPIOx->ODR & 0xFFFF0000) | (value & 0xFFFF);
 }
@@ -262,7 +262,7 @@ void GPIO_WriteOutputPort(GPIOx_t *pGPIOx, uint16_t value) {
  *
  * @note			- NONE
  */
-void GPIO_TogglePin(GPIOx_t *pGPIOx, uint8_t PinNumber){
+void RB_GPIO_TogglePin(GPIOx_t *pGPIOx, uint8_t PinNumber){
 	pGPIOx->ODR ^= (1 << PinNumber);
 }
 
@@ -282,7 +282,7 @@ void GPIO_TogglePin(GPIOx_t *pGPIOx, uint8_t PinNumber){
  *
  * @note			- NONE
  */
-void GPIO_IRQITConfig(uint8_t IRQNumber, uint8_t state){
+void RB_GPIO_IRQITConfig(uint8_t IRQNumber, uint8_t state){
 	if (state == ENABLE) {
 	    if (IRQNumber < 32) {
 	        // Configure the NVIC_ISER0
@@ -321,7 +321,7 @@ void GPIO_IRQITConfig(uint8_t IRQNumber, uint8_t state){
  *
  * @note			- NONE
  */
-void GPIO_IRQPriorityConfig(uint8_t IRQNumber, uint32_t Priority){
+void RB_GPIO_IRQPriorityConfig(uint8_t IRQNumber, uint32_t Priority){
 	// Finding out the IPRx Register
 	uint8_t iprx = IRQNumber / 4 ;
 	uint8_t iprx_section = IRQNumber % 4 ;
@@ -345,7 +345,7 @@ void GPIO_IRQPriorityConfig(uint8_t IRQNumber, uint32_t Priority){
  * @note			- NONE
  */
 
-void GPIO_IRQHandling(uint8_t PinNumber){
+void RB_GPIO_IRQHandling(uint8_t PinNumber){
 	//Clearing the EXTI Pending register if it's SET
 	if ( EXTI->PR & (1 << PinNumber) )
 	{

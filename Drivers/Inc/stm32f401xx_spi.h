@@ -15,13 +15,13 @@
 #include "stm32f401xx.h"
 
 typedef struct{
-	uint8_t SPI_DeviceMode;							/*!<Value from @GPIO_Pins*/
-	uint8_t SPI_BusConfig;							/*!<Value from @GPIO_Pins*/
-	uint8_t SPI_SclkSpeed;							/*!<Value from @GPIO_Pins*/
-	uint8_t SPI_DFF;								/*!<Value from @GPIO_Pins*/
-	uint8_t SPI_CPOL;								/*!<Value from @GPIO_Pins*/
-	uint8_t SPI_CPHA;								/*!<Value from @GPIO_Pins*/
-	uint8_t SPI_SSM;								/*!<Value from @GPIO_Pins*/
+	uint8_t SPI_DeviceMode;							/*!<Value from @Device_Mode*/
+	uint8_t SPI_BusConfig;							/*!<Value from @Bus_Config*/
+	uint8_t SPI_SclkSpeed;							/*!<Value from @Clock_Speed*/
+	uint8_t SPI_DFF;								/*!<Value from @Data_Format*/
+	uint8_t SPI_CPOL;								/*!<Value from @CPOL_Mode*/
+	uint8_t SPI_CPHA;								/*!<Value from @CPHA_Mode*/
+	uint8_t SPI_SSM;								/*!<Value from @SM_Mode*/
 }SPIx_Config_t;
 
 /*
@@ -36,29 +36,51 @@ typedef struct{
 /*
  * @Device_Mode
  */
-#define MASTER 0
-#define SLAVE 1
+#define SPI_MODE_SLAVE 0
+#define SPI_MODE_MASTER 1
+
 
 /*
- * @BusConfig
+ * @Bus_Config
  */
-#define S 0											/*Simplexe Mode*/
-#define HD 1										/*Half Duplex Mode*/
-#define FD 2 										/*Full Duplex Mode*/
+#define SPI_BUS_CONFIG_FD  1
+#define SPI_BUS_CONFIG_HD  2
+#define SPI_BUS_CONFIG_SIMPLEX_RXONLY 3
 
 /*
  * @Clock_Speed
  */
-
+#define SPI_SCLK_SPEED_DIV2 0
+#define SPI_SCLK_SPEED_DIV4 1
+#define SPI_SCLK_SPEED_DIV8 2
+#define SPI_SCLK_SPEED_DIV16 3
+#define SPI_SCLK_SPEED_DIV32 4
+#define SPI_SCLK_SPEED_DIV64 5
+#define SPI_SCLK_SPEED_DIV128 6
+#define SPI_SCLK_SPEED_DIV256 7
 
 /*
  * @Data_Format
  */
-#define _8B 0										/*8 Bit Data Format*/
-#define _16B 1										/*16 Bits Data Format*/
+#define SPI_DFF_8BITS 0
+#define SPI_DFF_16BITS 1
 
+/*
+ * @CPOL_Mode
+ */
+#define SPI_CPOL_LOW 0
+#define SPI_CPOL_HIGH 1
 
-
+/*
+ * @CPHA_Mode
+ */
+#define SPI_CPHA_LOW 0
+#define SPI_CPHA_HIGH 1
+/*
+ * @SM_Mode
+ */
+#define SPI_SM_HARDWARE 0
+#define SPI_SM_SOFTWARE 1
 /**************************************************************************************************
  * 									APIs Supported by this driver
  *					For further informations, please check the functions definition

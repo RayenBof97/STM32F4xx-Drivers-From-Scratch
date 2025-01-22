@@ -487,6 +487,13 @@ typedef struct{
 	__vo uint32_t S7FCR;				/*!<	Offset 0x00CC*/
 }DMA_t;
 
+/************************************** Registers Bits Specification ******************************************************/
+
+/*
+ * For SPI
+ */
+
+
 
 
 /*

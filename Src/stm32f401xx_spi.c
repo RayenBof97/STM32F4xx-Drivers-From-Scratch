@@ -69,7 +69,39 @@ void RB_SPI_PeriClockControl(SPIx_t *pSPIx, uint8_t State){
  * @note			- NONE
  */
 void RB_SPI_Init(SPIx_Handler_t *pSPIHandle){
+	uint32_t temp = 0 ; //Temporary register
 
+	/* Initialise the device mode */
+	temp |= (pSPIHandle->SPI_Config.SPI_DeviceMode << SPI_CR1_MSTR);
+
+	/* Initialise the Bus configuration*/
+	if(pSPIHandle->SPI_Config.SPI_BusConfig == SPI_BUS_CONFIG_FD)
+		{
+			temp &= ~(1 << SPI_CR1_BIDIMODE);
+		}
+		else if(pSPIHandle->SPI_Config.SPI_BusConfig == SPI_BUS_CONFIG_SIMPLEX_RXONLY)
+		{
+			temp &= ~(1 << SPI_CR1_BIDIMODE);
+			temp |=  (1 << SPI_CR1_RXONLY);
+		}
+		else if(pSPIHandle->SPI_Config.SPI_BusConfig == SPI_BUS_CONFIG_HD)
+		{
+			temp |= (1 << SPI_CR1_BIDIMODE);
+		}
+	 /* Initialise the Serial Clock speed */
+	temp |= (pSPIHandle->SPI_Config.SPI_SclkSpeed << SPI_CR1_BR);
+
+	/* Initialise the Data format*/
+	temp |= (pSPIHandle->SPI_Config.SPI_DFF << SPI_CR1_DFF);
+
+	/*Initialise CPOL and CPHA*/
+	temp |= (pSPIHandle->SPI_Config.SPI_CPHA << SPI_CR1_CPHA);
+	temp |= (pSPIHandle->SPI_Config.SPI_CPOL << SPI_CR1_CPOL);
+
+	/*Initialise SSM */
+	temp |= (pSPIHandle->SPI_Config.SPI_SSM << SPI_CR1_SSM);
+
+	pSPIHandle->pSPIx->CR1 = temp ;
 }
 
 
@@ -114,6 +146,7 @@ void RB_SPI_DeInit(SPIx_t *pSPIx){
  * @note			- NONE
  */
 void RB_SPI_Data_TX(SPIx_t *pSPIx,uint8_t *pTxBuffer,uint32_t len){
+
 
 }
 

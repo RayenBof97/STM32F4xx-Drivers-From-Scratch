@@ -515,6 +515,14 @@ typedef struct{
 #define SYSCFG 			((SYSCFG_t*)SYSCFG_BASEADDR)										/*!<	Typecasting RCC_BASEADDR to EXTI_t* */
 
 /*
+ * SPI Base Address typecasted to SPIx_t*
+ */
+#define SPI1			((SPIx_t*)SPI1_BASEADDR)											/*!< 	Typecasting SPI1_BASEADDR Peripheral to SPIx_t* */
+#define SPI2			((SPIx_t*)SPI2_BASEADDR)											/*!< 	Typecasting SPI2_BASEADDR Peripheral to SPIx_t* */
+#define SPI3			((SPIx_t*)SPI3_BASEADDR)											/*!< 	Typecasting SPI3_BASEADDR Peripheral to SPIx_t* */
+#define SPI4			((SPIx_t*)SPI4_BASEADDR)											/*!< 	Typecasting SPI4_BASEADDR Peripheral to SPIx_t* */
+
+/*
  * Clock Enable Macros for GPIOx peripherals
  */
 #define  GPIOA_PCLK_EN()		( RCC->AHB1ENR |= ( 1 << 0) )
@@ -689,5 +697,6 @@ typedef struct{
 
 
 #include "stm32f401xx_gpio.h"
+#include "stm32f401xx_spi.h"
 #endif /* INC_STM32F401XX_H_ */
 

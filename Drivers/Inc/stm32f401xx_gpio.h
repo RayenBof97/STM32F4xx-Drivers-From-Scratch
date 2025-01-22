@@ -1,7 +1,7 @@
 /*
  *
   ******************************************************************************
-  * @file    stm32f401xx.h
+  * @file    stm32f401xx_gpio.h
   * @author  Rayen	Bouafif
   * @mail    bouafifrayen01@gmail.com
   * @Tel     (+216)29 049 373
@@ -111,7 +111,7 @@ typedef struct{
  *					For further informations, please check the functions definition
  **************************************************************************************************/
 /*
- * Peripheral Clock Control
+ * GPIO Peripheral Clock Control
  */
 void RB_GPIO_PeriClockControl(GPIOx_t *pGPIOx, uint8_t State);
 
@@ -137,14 +137,6 @@ void RB_GPIO_TogglePin(GPIOx_t *pGPIOx, uint8_t PinNumber);
 void RB_GPIO_IRQITConfig(uint8_t IRQNumber, uint8_t state);
 void RB_GPIO_IRQPriorityConfig(uint8_t IRQNumber, uint32_t Priority);
 void RB_GPIO_IRQHandling(uint8_t PinNumber);
-
-
-
-
-
-
-
-
 
 
 #endif /* INC_STM32F401XX_GPIO_H_ */

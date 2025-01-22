@@ -1,7 +1,7 @@
 /*
  *
   ******************************************************************************
-  * @file    stm32f401xx.h
+  * @file    stm32f401xx_gpio.c
   * @author  Rayen	Bouafif
   * @mail    bouafifrayen01@gmail.com
   * @Tel     (+216)29 049 373
@@ -16,11 +16,11 @@
 
 
 /*
- * Peripheral Clock Control
+ * GPIO Peripheral Clock Control
  */
 
 /********************************************************************
- * @fn				- GPIO_PeriClockControl
+ * @fn				- RB_GPIO_PeriClockControl
  *
  * @brief			- This function enable or disable the GPIO peripheral clock
  *
@@ -69,7 +69,7 @@ void RB_GPIO_PeriClockControl(GPIOx_t *pGPIOx, uint8_t State){
  */
 
 /********************************************************************
- * @fn				- GPIO_Init
+ * @fn				- RB_GPIO_Init
  *
  * @brief			- initialize a specific GPIO pin
  *
@@ -154,7 +154,7 @@ void RB_GPIO_Init(GPIOx_Handler_t *pGPIOHandle){
 
 
 /********************************************************************
- * @fn				- GPIO_DeInit
+ * @fn				- RB_GPIO_DeInit
  *
  * @brief			- Deinitialize a specific GPIO pin (Reset all registers)
  *
@@ -188,7 +188,7 @@ void RB_GPIO_DeInit(GPIOx_t *pGPIOx){
  */
 
 /********************************************************************
- * @fn				- GPIO_ReadInputPin
+ * @fn				- RB_GPIO_ReadInputPin
  *
  * @brief			- Read the state of a single pin in GPIOx
  *
@@ -206,7 +206,7 @@ uint8_t RB_GPIO_ReadInputPin(GPIOx_t *pGPIOx, uint8_t PinNumber){
 }
 
 /********************************************************************
- * @fn				- GPIO_ReadInputPort
+ * @fn				- RB_GPIO_ReadInputPort
  *
  * @brief			- Read the state of the whole output
  *
@@ -223,7 +223,7 @@ uint16_t RB_GPIO_ReadInputPort(GPIOx_t *pGPIOx){
 }
 
 /********************************************************************
- * @fn				- GPIO_WriteOutputPin
+ * @fn				- RB_GPIO_WriteOutputPin
  *
  * @brief			- Write a state into a GPIO Pin
  *
@@ -247,7 +247,7 @@ void RB_GPIO_WriteOutputPin(GPIOx_t *pGPIOx, uint8_t PinNumber, uint8_t value){
 }
 
 /********************************************************************
- * @fn				- GPIO_WriteOutputPort
+ * @fn				- RB_GPIO_WriteOutputPort
  *
  * @brief			- Write a value into a GPIO Port
  *
@@ -265,7 +265,7 @@ void RB_GPIO_WriteOutputPort(GPIOx_t *pGPIOx, uint16_t value) {
 
 
 /********************************************************************
- * @fn				- GPIO_TogglePin
+ * @fn				- RB_GPIO_TogglePin
  *
  * @brief			- Switch the state of a GPIO Pin
  *
@@ -285,7 +285,7 @@ void RB_GPIO_TogglePin(GPIOx_t *pGPIOx, uint8_t PinNumber){
  * Interrupt routine
  */
 /********************************************************************
- * @fn				- GPIO_IRQITConfig
+ * @fn				- RB_GPIO_IRQITConfig
  *
  * @brief			- Enable IRQ
  *
@@ -324,7 +324,7 @@ void RB_GPIO_IRQITConfig(uint8_t IRQNumber, uint8_t state){
 
 
 /********************************************************************
- * @fn				- GPIO_IRQPriorityConfig
+ * @fn				- RB_GPIO_IRQPriorityConfig
  *
  * @brief			- Configure the priority of the IRQ
  *
@@ -348,7 +348,7 @@ void RB_GPIO_IRQPriorityConfig(uint8_t IRQNumber, uint32_t Priority){
 
 
 /********************************************************************
- * @fn				- GPIO_IRQHandling
+ * @fn				- RB_GPIO_IRQHandling
  *
  * @brief			- Handling the IRQ on GPIO Peripherals
  *

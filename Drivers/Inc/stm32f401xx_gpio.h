@@ -23,6 +23,10 @@ typedef struct{
 	uint8_t GPIO_pinAltFuncMode;			/*!<Value from @GPIO_AF*/
 }GPIOx_PinConfig_t;
 
+/*
+ * Handler Structure for GPIOx Peripheral
+ */
+
 typedef struct{
 	GPIOx_t *pGPIOx;
 	GPIOx_PinConfig_t GPIO_PinConfig;
@@ -128,7 +132,7 @@ void RB_GPIO_TogglePin(GPIOx_t *pGPIOx, uint8_t PinNumber);
 
 
 /*
- * Interrupt routine
+ * IRQ Configuration an ISR handling
  */
 void RB_GPIO_IRQITConfig(uint8_t IRQNumber, uint8_t state);
 void RB_GPIO_IRQPriorityConfig(uint8_t IRQNumber, uint32_t Priority);

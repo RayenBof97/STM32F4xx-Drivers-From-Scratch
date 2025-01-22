@@ -220,7 +220,7 @@ typedef struct{
 	__vo uint32_t TXCRCR;				/*!<	Offset 0x18*/
 	__vo uint32_t I2SCFGR;				/*!<	Offset 0x1C*/
 	__vo uint32_t I2SPR;				/*!<	Offset 0x20*/
-}SPI_t;
+}SPIx_t;
 
 typedef struct{
 	__vo uint32_t SR;					/*!<	Offset 0x00*/

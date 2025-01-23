@@ -111,6 +111,9 @@ void RB_SPI_IRQPriorityConfig(uint8_t IRQNumber, uint32_t Priority);
 void RB_SPI_IRQHandling(SPIx_Handler_t *pSPIHandle);
 
 
-
+/*
+ * Others APIs
+ */
+uint8_t RB_SPI_GetFlagStatus(SPIx_t *pSPIx,uint8_t flag);
 
 #endif /* INC_STM32F401XX_SPI_H_ */

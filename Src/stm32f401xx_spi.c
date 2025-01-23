@@ -136,36 +136,68 @@ void RB_SPI_DeInit(SPIx_t *pSPIx){
 /********************************************************************
  * @fn				- RB_SPI_Data_TX
  *
- * @brief			- Transfer Data
+ * @brief			- Transfer Data (Poll mode)
  *
  * @param[in]		- a pointer on the SPI Structure
  * @param[in]		- The Buffer which will contain the Transferred data
  * @param[in]       - The length of the message
  *
  * @return 			- NONE
- * @note			- NONE
+ * @note			- This API is a blocking call
  */
 void RB_SPI_Data_TX(SPIx_t *pSPIx,uint8_t *pTxBuffer,uint32_t len){
 
+	while (len > 0)
+	{
+		while(RB_SPI_GetFlagStatus(pSPIx,SPI_SR_TXE) == FLAG_RESET); //Wait until TX Buffer is empty
 
+		if (pSPIx->CR1 & (1 << SPI_CR1_DFF)) //16 Bits
+		{
+			pSPIx->DR = *((uint16_t*)pTxBuffer);
+			len--;
+			(uint16_t*)pTxBuffer++;
+		}else   								//8 Bits
+		{
+			pSPIx->DR = *pTxBuffer;
+			pTxBuffer++;
+		}
+		len--;
+	}
 }
 
 
 /********************************************************************
  * @fn				- RB_SPI_Data_RX
  *
- * @brief			- Receive Data
+ * @brief			- Receive Data (Poll Mode)
  *
  * @param[in]		- a pointer on the SPI Structure
  * @param[in]		- The Buffer which will contain the received data
  * @param[in]       - The length of the message
  *
  * @return 			- NONE
- * @note			- NONE
+ * @note			- This API is also a blocking call
  */
 void RB_SPI_Data_RX(SPIx_t *pSPIx,uint8_t *pRxBuffer,uint32_t len){
 
+	while (len > 0)
+	{
+		while(RB_SPI_GetFlagStatus(pSPIx,SPI_SR_RXNE) == FLAG_RESET); //Wait until RX Buffer is non-empty
+
+		if (pSPIx->CR1 & (1 << SPI_CR1_DFF)) //16 Bits
+		{
+			*((uint16_t*)pRxBuffer) = pSPIx->DR;
+			len--;
+			(uint16_t*)pRxBuffer++;
+		}else   								//8 Bits
+		{
+			*(pRxBuffer) = pSPIx->DR;
+			pRxBuffer++;
+		}
+		len--;
+	}
 }
+
 
 /*
  * SPI IRQ Configuration an ISR handling
@@ -216,4 +248,24 @@ void RB_SPI_IRQPriorityConfig(uint8_t IRQNumber, uint32_t Priority){
 
 void RB_SPI_IRQHandling(SPIx_Handler_t *pSPIHandle){
 
+}
+
+
+/*
+ * Others APIs
+ */
+/********************************************************************
+ * @fn				- RB_SPI_GetFlag
+ *
+ * @brief			- Return the status of specific flag
+ *
+ * @param[in]		- Pointer on SPI Peripheral
+ * @param[in]		- Desired Flag (Macros defined @SPI_Flags , or use the Bit position in the SPI_SR Register
+ *
+ * @return 			- Status of the flag (FLAG_SET or FLAG_RESET)
+ *
+ * @note			- NONE
+ */
+uint8_t RB_SPI_GetFlagStatus(SPIx_t *pSPIx,uint8_t flag){
+	return (pSPIx->SR & (1 << flag)) ? FLAG_SET : FLAG_RESET;
 }

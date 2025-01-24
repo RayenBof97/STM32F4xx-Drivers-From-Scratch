@@ -198,6 +198,61 @@ void RB_SPI_Data_RX(SPIx_t *pSPIx,uint8_t *pRxBuffer,uint32_t len){
 	}
 }
 
+/*
+ * SPI Data TX and RX (Interruption mode)
+ */
+/********************************************************************
+ * @fn				- RB_SPI_Data_TXIT
+ *
+ * @brief			- Transfer Data (Interrupt mode)
+ *
+ * @param[in]		- a pointer on the SPI Handle Structure
+ * @param[in]		- The Buffer which will contain the Transferred data
+ * @param[in]       - The length of the message
+ *
+ * @return 			- Return the state of Tx
+ * @note			- This API is a non-blocking call
+ */
+uint8_t RB_SPI_Data_TXIT(SPIx_Handler_t *pSPIHandle,uint8_t *pTxBuffer,uint32_t len){
+	uint8_t state = pSPIHandle->TxState;
+	if(state != SPI_BUSY_IN_TX)
+	{
+		//Save Tx Buffer Address and Length informations
+		pSPIHandle->pTxBuffer = pTxBuffer;
+		pSPIHandle->TxLen = len;
+		//Mark the TX State as busy
+		pSPIHandle->TxState = SPI_BUSY_IN_TX;
+		//Enable the TXEIE Control Bit to enable the interrupt whenever TXE is 1 (TX Buffer is empty)
+		pSPIHandle->pSPIx->CR2 |= (1 << SPI_CR2_TXEIE);
+	}
+	return state;
+}
+/********************************************************************
+ * @fn				- RB_SPI_Data_RXIT
+ *
+ * @brief			- Receive Data (Interrupt Mode)
+ *
+ * @param[in]		- a pointer on the SPI Handle Structure
+ * @param[in]		- The Buffer which will contain the received data
+ * @param[in]       - The length of the message
+ *
+ * @return 			- Return the state of Rx
+ * @note			- This API is also a non-blocking call
+ */
+uint8_t RB_SPI_Data_RXIT(SPIx_Handler_t *pSPIHandle,uint8_t *pRxBuffer,uint32_t len){
+	uint8_t state = pSPIHandle->RxState;
+	if(state != SPI_BUSY_IN_RX)
+	{
+		//Save Rx Buffer Address and Length informations
+		pSPIHandle->pRxBuffer = pRxBuffer;
+		pSPIHandle->RxLen = len;
+		//Mark the RX State as busy
+		pSPIHandle->RxState = SPI_BUSY_IN_RX;
+		//Enable the RXNEIE Control Bit to enable the interrupt whenever RXNE is 1 (RX Buffer is full)
+		pSPIHandle->pSPIx->CR2 |= (1 << SPI_CR2_RXNEIE);
+	}
+	return state;
+}
 
 /*
  * SPI IRQ Configuration an ISR handling

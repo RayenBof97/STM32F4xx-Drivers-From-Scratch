@@ -29,8 +29,14 @@ typedef struct{
  */
 
 typedef struct{
-	SPIx_t *pSPIx;
-	SPIx_Config_t SPI_Config;
+	SPIx_t *pSPIx;									/*!<Base Address of the SPI Peripheral*/
+	SPIx_Config_t SPI_Config;						/*!<Structure of SPI Configuration*/
+	uint8_t *pTxBuffer;								/*!<Storing the Application Tx Buffer */
+	uint8_t *pRxBuffer;								/*!<Storing the Application Rx Buffer*/
+	uint32_t TxLen;									/*!<Length of the app Tx Buffer*/
+	uint32_t RxLen;									/*!<Length of the app Rx Buffer*/
+	uint8_t TxState;								/*!<Sotring the state of Tx*/
+	uint8_t RxState;								/*!<Storing the state of Rx*/
 }SPIx_Handler_t;
 
 /*
@@ -81,6 +87,15 @@ typedef struct{
  */
 #define SPI_SM_HARDWARE 0
 #define SPI_SM_SOFTWARE 1
+
+/*
+ * SPI Application states
+ */
+#define SPI_READY 		0
+#define SPI_BUSY_IN_RX	1
+#define SPI_BUSY_IN_TX	2
+
+
 /**************************************************************************************************
  * 									APIs Supported by this driver
  *					For further informations, please check the functions definition
@@ -97,11 +112,16 @@ void RB_SPI_Init(SPIx_Handler_t *pSPIHandle);
 void RB_SPI_DeInit(SPIx_t *pSPIx);
 
 /*
- * SPI Data TX and RX
+ * SPI Data TX and RX (Poll mode)
  */
 void RB_SPI_Data_TX(SPIx_t *pSPIx,uint8_t *pTxBuffer,uint32_t len);
 void RB_SPI_Data_RX(SPIx_t *pSPIx,uint8_t *pRxBuffer,uint32_t len);
 
+/*
+ * SPI Data TX and RX (Interruption mode)
+ */
+uint8_t RB_SPI_Data_TXIT(SPIx_Handler_t *pSPIHandle,uint8_t *pTxBuffer,uint32_t len);
+uint8_t RB_SPI_Data_RXIT(SPIx_Handler_t *pSPIHandle,uint8_t *pRxBuffer,uint32_t len);
 
 /*
  * SPI IRQ Configuration an ISR handling

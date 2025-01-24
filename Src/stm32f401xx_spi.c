@@ -215,7 +215,29 @@ void RB_SPI_Data_RX(SPIx_t *pSPIx,uint8_t *pRxBuffer,uint32_t len){
  * @note			- NONE
  */
 void RB_SPI_IRQITConfig(uint8_t IRQNumber, uint8_t state){
-
+	if (state == ENABLE) {
+	    if (IRQNumber < 32) {
+	        // Configure the NVIC_ISER0
+	    	*NVIC_ISER0 |= ( 1 << IRQNumber );
+	    } else if (IRQNumber < 64) {
+	        // Configure the NVIC_ISER1
+	    	*NVIC_ISER1 |= ( 1 << IRQNumber % 32 );
+	    } else if (IRQNumber < 96) {
+	        // Configure the NVIC_ISER2
+	    	*NVIC_ISER2 |= ( 1 << IRQNumber % 64 );
+	    }
+	} else { // state == DISABLE
+	    if (IRQNumber < 32) {
+	        // Configure the NVIC_ICER0
+	    	*NVIC_ICER0 |= ( 1 << IRQNumber );
+	    } else if (IRQNumber < 64) {
+	        // Configure the NVIC_ICER1
+	    	*NVIC_ICER1 |= ( 1 << IRQNumber % 32 );
+	    } else if (IRQNumber < 96) {
+	        // Configure the NVIC_ICER2
+	    	*NVIC_ICER2 |= ( 1 << IRQNumber % 64 );
+	    }
+	}
 }
 
 /********************************************************************
@@ -231,7 +253,11 @@ void RB_SPI_IRQITConfig(uint8_t IRQNumber, uint8_t state){
  * @note			- NONE
  */
 void RB_SPI_IRQPriorityConfig(uint8_t IRQNumber, uint32_t Priority){
-
+	// Finding out the IPRx Register
+	uint8_t iprx = IRQNumber / 4 ;
+	uint8_t iprx_section = IRQNumber % 4 ;
+	uint8_t shift = (8 * iprx_section) + (8 - IMPLEMENTED_PRIORITY_BITS);
+	*( NVIC_IPR + iprx ) |= (Priority << shift) ;
 }
 
 /********************************************************************

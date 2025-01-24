@@ -30,7 +30,11 @@
 
 
 /*
- * IRQ (Interrupt Request) Numbers of STM32F401x MCU
+ ********************************** IRQ (Interrupt Request) Numbers of STM32F401x MCU*****************************************
+ */
+
+/*
+ * EXTI IRQ Positions
  */
 #define IRQ_NO_EXTI0								6
 #define IRQ_NO_EXTI1								7
@@ -39,6 +43,15 @@
 #define IRQ_NO_EXTI4								10
 #define IRQ_NO_EXTI9_5								23
 #define IRQ_NO_EXTI15_10							40
+
+/*
+ * SPI IRQ Positions
+ */
+#define IRQ_NO_SPI1									35
+#define IRQ_NO_SPI2									36
+#define IRQ_NO_SPI3									51
+#define IRQ_NO_SPI4									84
+
 
 /*
  * IRQ Priority Levels

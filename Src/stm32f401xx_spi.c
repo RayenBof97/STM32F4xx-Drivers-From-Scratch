@@ -13,6 +13,11 @@
 #include "stm32f401xx_spi.h"
 
 
+/*PRIVATE FUNCTIONS*/
+static void Spi_Txe_IT_Handler(SPIx_Handler_t *pSPIHandle);
+static void Spi_Rxe_IT_Handler(SPIx_Handler_t *pSPIHandle);
+static void Spi_Ovr_IT_Handler(SPIx_Handler_t *pSPIHandle);
+
 /*
  * SPI Peripheral Clock Control
  */
@@ -328,6 +333,30 @@ void RB_SPI_IRQPriorityConfig(uint8_t IRQNumber, uint32_t Priority){
  */
 
 void RB_SPI_IRQHandling(SPIx_Handler_t *pSPIHandle){
+	uint8_t temp1,temp2;
+
+	//Check for the TXE Flag
+	temp1 = pSPIHandle->pSPIx->SR & (1 << SPI_SR_TXE);
+	temp2 = pSPIHandle->pSPIx->CR2 & (1 << SPI_CR2_TXEIE);
+	if (temp1 && temp2)
+	{
+		Spi_Txe_IT_Handler(pSPIHandle);
+	}
+
+
+	temp1 = pSPIHandle->pSPIx->SR & (1 << SPI_SR_RXNE);
+	temp2 = pSPIHandle->pSPIx->CR2 & (1 << SPI_CR2_RXNEIE);
+	if (temp1 && temp2)
+	{
+		Spi_Rxe_IT_Handler(pSPIHandle);
+	}
+
+	temp1 = pSPIHandle->pSPIx->SR & (1 << SPI_SR_OVR );
+	temp2 = pSPIHandle->pSPIx->CR2 & (1 << SPI_CR2_ERRIE );
+	if (temp1 && temp2)
+	{
+		Spi_Ovr_IT_Handler(pSPIHandle);
+	}
 
 }
 
@@ -349,4 +378,21 @@ void RB_SPI_IRQHandling(SPIx_Handler_t *pSPIHandle){
  */
 uint8_t RB_SPI_GetFlagStatus(SPIx_t *pSPIx,uint8_t flag){
 	return (pSPIx->SR & (1 << flag)) ? FLAG_SET : FLAG_RESET;
+}
+
+
+/* PRIVATE FUNCTIONS SOURCES CODE */
+static void Spi_Txe_IT_Handler(SPIx_Handler_t *pSPIHandle)
+{
+
+}
+
+static void Spi_Rxe_IT_Handler(SPIx_Handler_t *pSPIHandle)
+{
+
+}
+
+static void Spi_Ovr_IT_Handler(SPIx_Handler_t *pSPIHandle)
+{
+
 }

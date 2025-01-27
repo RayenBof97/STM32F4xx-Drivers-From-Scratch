@@ -137,10 +137,16 @@ void RB_SPI_IRQITConfig(uint8_t IRQNumber, uint8_t state);
 void RB_SPI_IRQPriorityConfig(uint8_t IRQNumber, uint32_t Priority);
 void RB_SPI_IRQHandling(SPIx_Handler_t *pSPIHandle);
 
-
+/*
+ * Application Callback Functions
+ */
+void SPI_ApplicationEventCallback(SPIx_Handler_t *pSPIHandle,uint8_t event);
 /*
  * Others APIs
  */
 uint8_t RB_SPI_GetFlagStatus(SPIx_t *pSPIx,uint8_t flag);
+void RB_SPI_ClearOVRFlag(SPIx_t *pSPIx);
+void RB_SPI_CloseTx(SPIx_Handler_t *pSPIHandle);
+void RB_SPI_CloseRx(SPIx_Handler_t *pSPIHandle);
 
 #endif /* INC_STM32F401XX_SPI_H_ */

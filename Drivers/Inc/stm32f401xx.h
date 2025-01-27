@@ -249,7 +249,7 @@ typedef struct{
 	__vo uint32_t CR2;					/*!<	Offset 0x10*/
 	__vo uint32_t CR3;					/*!<	Offset 0x14*/
 	__vo uint32_t GTPR;					/*!<	Offset 0x18*/
-}USART_t;
+}USARTx_t;
 
 
 typedef struct{
@@ -263,7 +263,7 @@ typedef struct{
 	__vo uint32_t CCR;					/*!<	Offset 0x1C*/
 	__vo uint32_t TRISE;				/*!<	Offset 0x20*/
 	__vo uint32_t FLTR;					/*!<	Offset 0x24*/
-}I2C_t;
+}I2Cx_t;
 
 typedef struct{
 	__vo uint32_t CR;					/*!<	Offset 0x00*/

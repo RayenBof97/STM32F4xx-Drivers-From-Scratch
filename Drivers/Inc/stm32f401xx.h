@@ -14,6 +14,7 @@
 #ifndef INC_STM32F401XX_H_
 #define INC_STM32F401XX_H_
 
+#include <stddef.h>
 #include <stdint.h>
 
 

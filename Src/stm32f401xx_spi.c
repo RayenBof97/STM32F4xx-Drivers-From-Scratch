@@ -191,12 +191,12 @@ void RB_SPI_Data_RX(SPIx_t *pSPIx,uint8_t *pRxBuffer,uint32_t len){
 
 		if (pSPIx->CR1 & (1 << SPI_CR1_DFF)) //16 Bits
 		{
-			*((uint16_t*)pRxBuffer) = pSPIx->DR;
+			*((uint16_t*)pRxBuffer) = (uint16_t)pSPIx->DR;
 			len--;
 			(uint16_t*)pRxBuffer++;
-		}else   								//8 Bits
+		}else   							//8 Bits
 		{
-			*(pRxBuffer) = pSPIx->DR;
+			*(pRxBuffer) = (uint8_t)pSPIx->DR;
 			pRxBuffer++;
 		}
 		len--;
@@ -343,7 +343,7 @@ void RB_SPI_IRQHandling(SPIx_Handler_t *pSPIHandle){
 		Spi_Txe_IT_Handler(pSPIHandle);
 	}
 
-
+	//Check for the RXE Flag
 	temp1 = pSPIHandle->pSPIx->SR & (1 << SPI_SR_RXNE);
 	temp2 = pSPIHandle->pSPIx->CR2 & (1 << SPI_CR2_RXNEIE);
 	if (temp1 && temp2)
@@ -351,6 +351,7 @@ void RB_SPI_IRQHandling(SPIx_Handler_t *pSPIHandle){
 		Spi_Rxe_IT_Handler(pSPIHandle);
 	}
 
+	//Check for the OVR Flag
 	temp1 = pSPIHandle->pSPIx->SR & (1 << SPI_SR_OVR );
 	temp2 = pSPIHandle->pSPIx->CR2 & (1 << SPI_CR2_ERRIE );
 	if (temp1 && temp2)
@@ -384,11 +385,53 @@ uint8_t RB_SPI_GetFlagStatus(SPIx_t *pSPIx,uint8_t flag){
 /* PRIVATE FUNCTIONS SOURCES CODE */
 static void Spi_Txe_IT_Handler(SPIx_Handler_t *pSPIHandle)
 {
+	if (pSPIHandle->pSPIx->CR1 & (1 << SPI_CR1_DFF)) //16 Bits
+			{
+				pSPIHandle->pSPIx->DR = *((uint16_t*)pSPIHandle->pTxBuffer);
+				pSPIHandle->TxLen-=2;
+				pSPIHandle->pTxBuffer += 2;
+			}else   								//8 Bits
+			{
+				pSPIHandle->pSPIx->DR = *(pSPIHandle->pTxBuffer);
+				pSPIHandle->pTxBuffer++;
+				pSPIHandle->TxLen--;
+			}
+	if(! pSPIHandle->TxLen) //If the Transmission is over , We have to close the transmission
+	{
+		pSPIHandle->pSPIx->CR2 &= ~(1 << SPI_CR2_TXEIE); //Disable the interrupt occuring from TXE
+		pSPIHandle->pTxBuffer = NULL;
+		pSPIHandle->TxLen = 0;
+		pSPIHandle->TxState = SPI_READY;
+
+		SPI_ApplicationEventCallBack(pSPIHandle,SPI_EVENT_TX_CMPLT);
+	}
 
 }
 
+
+
 static void Spi_Rxe_IT_Handler(SPIx_Handler_t *pSPIHandle)
 {
+	if (pSPIHandle->pSPIx->CR1 & (1 << SPI_CR1_DFF)) //16 Bits
+			{
+				*((uint16_t*)pSPIHandle->pRxBuffer) = (uint16_t)pSPIHandle->pSPIx->DR;
+				pSPIHandle->RxLen-=2;
+				pSPIHandle->pRxBuffer+=2;
+			}else   								//8 Bits
+			{
+				*(pSPIHandle->pRxBuffer) = (uint8_t)pSPIHandle->pSPIx->DR;
+				pSPIHandle->RxLen-=2;
+				pSPIHandle->pRxBuffer++;
+			}
+	if(! pSPIHandle->RxLen) //If the Transmission is over , We have to close the transmission
+		{
+			pSPIHandle->pSPIx->CR2 &= ~(1 << SPI_CR2_RXNEIE); //Disable the interrupt occuring from TXE
+			pSPIHandle->pRxBuffer = NULL;
+			pSPIHandle->RxLen = 0;
+			pSPIHandle->RxState = SPI_READY;
+
+			SPI_ApplicationEventCallBack(pSPIHandle,SPI_EVENT_RX_CMPLT);
+		}
 
 }
 

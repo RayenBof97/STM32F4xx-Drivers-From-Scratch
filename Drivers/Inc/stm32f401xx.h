@@ -588,6 +588,13 @@ typedef struct{
 #define SPI4			((SPIx_t*)SPI4_BASEADDR)											/*!< 	Typecasting SPI4_BASEADDR Peripheral to SPIx_t* */
 
 /*
+ * USART Base Adress typecasted to USARTx_t
+ */
+#define USART1			((USARTx_t*)USART1_BASEADDR)
+#define USART2			((USARTx_t*)USART2_BASEADDR)
+#define USART6			((USARTx_t*)USART6_BASEADDR)
+
+/*
  * Clock Enable Macros for GPIOx peripherals
  */
 #define  GPIOA_PCLK_EN()		( RCC->AHB1ENR |= ( 1 << 0) )

@@ -54,6 +54,13 @@
 #define IRQ_NO_SPI3									51
 #define IRQ_NO_SPI4									84
 
+/*
+ * USART IRQ Positions
+ */
+#define IRQ_NO_USART1								37
+#define IRQ_NO_USART2								38
+#define IRQ_NO_USART6								71
+
 
 /*
  * IRQ Priority Levels
@@ -593,6 +600,7 @@ typedef struct{
 #define USART1			((USARTx_t*)USART1_BASEADDR)
 #define USART2			((USARTx_t*)USART2_BASEADDR)
 #define USART6			((USARTx_t*)USART6_BASEADDR)
+
 
 /*
  * Clock Enable Macros for GPIOx peripherals

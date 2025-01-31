@@ -369,6 +369,28 @@ void RB_SPI_IRQHandling(SPIx_Handler_t *pSPIHandle){
  * Others APIs
  */
 /********************************************************************
+ * @fn				- SPI_PeriphControl
+ *
+ * @brief			- Enable/Disable the SPI Peripheral
+ *
+ * @param[in]		- Pointer on SPI Handler
+ * @param[in]		- State (ENABLE or DISABLE)
+ *
+ * @return 			- NONE
+ *
+ * @note			- The SPI Peripheral is Disabled by default to allow control configuration on the SPI Peripheral
+ */
+void SPI_PeriphControl(SPIx_t *pSPIx,uint8_t state){
+	if (state == ENABLE)
+	{
+		pSPIx->CR1 |= (1 << SPI_CR1_SPE);
+	}else
+	{
+		pSPIx->CR1 &= ~(1 << SPI_CR1_SPE);
+	}
+
+}
+/********************************************************************
  * @fn				- RB_SPI_GetFlag
  *
  * @brief			- Return the status of specific flag

@@ -147,7 +147,7 @@ void RB_USART_Data_RX(SPIx_t *pUSARTx,uint8_t *pRxBuffer,uint32_t len){
  * @note			- This API is a non-blocking call
  */
 uint8_t RB_USART_Data_TXIT(USARTx_Handler_t *pUSARTHandle,uint8_t *pTxBuffer,uint32_t len){
-
+	return 0;
 }
 
 /********************************************************************
@@ -163,7 +163,7 @@ uint8_t RB_USART_Data_TXIT(USARTx_Handler_t *pUSARTHandle,uint8_t *pTxBuffer,uin
  * @note			- This API is also a non-blocking call
  */
 uint8_t RB_USART_Data_RXIT(USARTx_Handler_t *pUSARTHandle,uint8_t *pRxBuffer,uint32_t len){
-
+	return 0;
 }
 
 /*

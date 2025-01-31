@@ -62,7 +62,7 @@ int main(){
 	//Initialisation
 	SPI2_GPIOInit();
 	SPI2_Init();
-
+	SPI_PeriphControl(SPI2,ENABLE);
 	//Send Data
 	RB_SPI_Data_TX(SPI2,(uint8_t*)user_data,strlen(user_data));
 

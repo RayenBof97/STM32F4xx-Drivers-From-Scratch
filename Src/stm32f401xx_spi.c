@@ -76,6 +76,9 @@ void RB_SPI_PeriClockControl(SPIx_t *pSPIx, uint8_t State){
 void RB_SPI_Init(SPIx_Handler_t *pSPIHandle){
 	uint32_t temp = 0 ; //Temporary register
 
+	//Enable the Clock
+	RB_SPI_PeriClockControl(pSPIHandle->pSPIx, ENABLE);
+
 	/* Initialise the device mode */
 	temp |= (pSPIHandle->SPI_Config.SPI_DeviceMode << SPI_CR1_MSTR);
 

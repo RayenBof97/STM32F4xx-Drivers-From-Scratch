@@ -82,6 +82,9 @@ void RB_GPIO_PeriClockControl(GPIOx_t *pGPIOx, uint8_t State){
 void RB_GPIO_Init(GPIOx_Handler_t *pGPIOHandle){
 	uint32_t temp = 0 ; //Temporary register
 
+	//Enable the Clock
+	RB_GPIO_PeriClockControl(pGPIOHandle->pGPIOx, ENABLE);
+
 	//Initialise Mode of GPIO
 	if(pGPIOHandle->GPIO_PinConfig.GPIO_PinMode <= GPIO_MODE_ANALOG)
 	{

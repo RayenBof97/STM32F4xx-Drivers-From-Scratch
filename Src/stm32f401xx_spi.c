@@ -157,19 +157,21 @@ void RB_SPI_Data_TX(SPIx_t *pSPIx,uint8_t *pTxBuffer,uint32_t len){
 
 	while (len > 0)
 	{
-		while(RB_SPI_GetFlagStatus(pSPIx,SPI_SR_TXE) == FLAG_RESET); //Wait until TX Buffer is empty
+		while(!RB_SPI_GetFlagStatus(pSPIx,SPI_SR_TXE)); //Wait until TX Buffer is empty
 
 		if (pSPIx->CR1 & (1 << SPI_CR1_DFF)) //16 Bits
 		{
 			pSPIx->DR = *((uint16_t*)pTxBuffer);
 			len--;
+			len--;
 			(uint16_t*)pTxBuffer++;
 		}else   								//8 Bits
 		{
 			pSPIx->DR = *pTxBuffer;
-			pTxBuffer++;
+			(uint8_t*)pTxBuffer++;
+			len--;
 		}
-		len--;
+
 	}
 }
 
@@ -190,7 +192,7 @@ void RB_SPI_Data_RX(SPIx_t *pSPIx,uint8_t *pRxBuffer,uint32_t len){
 
 	while (len > 0)
 	{
-		while(RB_SPI_GetFlagStatus(pSPIx,SPI_SR_RXNE) == FLAG_RESET); //Wait until RX Buffer is non-empty
+		while(!RB_SPI_GetFlagStatus(pSPIx,SPI_SR_RXNE)); //Wait until RX Buffer is non-empty
 
 		if (pSPIx->CR1 & (1 << SPI_CR1_DFF)) //16 Bits
 		{
@@ -373,7 +375,7 @@ void RB_SPI_IRQHandling(SPIx_Handler_t *pSPIHandle){
  *
  * @brief			- Enable/Disable the SPI Peripheral
  *
- * @param[in]		- Pointer on SPI Handler
+ * @param[in]		- Pointer on SPI Peripheral
  * @param[in]		- State (ENABLE or DISABLE)
  *
  * @return 			- NONE
@@ -390,6 +392,28 @@ void SPI_PeriphControl(SPIx_t *pSPIx,uint8_t state){
 	}
 
 }
+
+/********************************************************************
+ * @fn				- SPI_SSI_Config
+ *
+ * @brief			- Enable/Disable the SSI in NSS Software mode
+ *
+ * @param[in]		- Pointer on SPI Peripehral
+ * @param[in]		- State (ENABLE or DISABLE)
+ *
+ * @return 			- NONE
+ *
+ * @note			- This is necessary when to do when you are using the SPI Peripheral in master mode (Set SSI to 1)
+ */
+void SPI_SSI_Config(SPIx_t *pSPIx,uint8_t state){
+	if (state == ENABLE)
+	{
+		pSPIx->CR1 |= (1 << SPI_CR1_SSI);
+	}else
+	{
+		pSPIx->CR1 &= ~(1 << SPI_CR1_SSI);
+	}
+}
 /********************************************************************
  * @fn				- RB_SPI_GetFlag
  *
@@ -403,7 +427,7 @@ void SPI_PeriphControl(SPIx_t *pSPIx,uint8_t state){
  * @note			- NONE
  */
 uint8_t RB_SPI_GetFlagStatus(SPIx_t *pSPIx,uint8_t flag){
-	return (pSPIx->SR & (1 << flag)) ? FLAG_SET : FLAG_RESET;
+	return (pSPIx->SR & (1 << flag));
 }
 
 /********************************************************************

@@ -57,15 +57,19 @@ void SPI2_Init(void){
 }
 
 int main(){
-	char user_data[] = "Hello World";
+	char user_data[] = "yaatekasba";
 
 	//Initialisation
 	SPI2_GPIOInit();
 	SPI2_Init();
+	//Enable to avoid MODF Error (Pull NSS internally to high)
+	SPI_SSI_Config(SPI2,ENABLE);
 	SPI_PeriphControl(SPI2,ENABLE);
 	//Send Data
 	RB_SPI_Data_TX(SPI2,(uint8_t*)user_data,strlen(user_data));
 
+	//Disbale the peripheral
+	SPI_PeriphControl(SPI2,DISABLE);
 
 	while(1);
 

@@ -57,7 +57,7 @@ void SPI2_Init(void){
 }
 
 int main(){
-	char user_data[] = "yaatekasba";
+	char user_data[] = "Testing";
 
 	//Initialisation
 	SPI2_GPIOInit();
@@ -69,6 +69,7 @@ int main(){
 	RB_SPI_Data_TX(SPI2,(uint8_t*)user_data,strlen(user_data));
 
 	//Disbale the peripheral
+	while(RB_SPI_GetFlagStatus(SPI2,SPI_SR_BSY));
 	SPI_PeriphControl(SPI2,DISABLE);
 
 	while(1);

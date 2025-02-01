@@ -146,6 +146,7 @@ void SPI_ApplicationEventCallback(SPIx_Handler_t *pSPIHandle,uint8_t event);
  */
 void SPI_PeriphControl(SPIx_t *pSPIx,uint8_t state);
 void SPI_SSI_Config(SPIx_t *pSPIx,uint8_t state);
+void SPI_SSOE_Config(SPIx_t *pSPIx,uint8_t state);
 uint8_t RB_SPI_GetFlagStatus(SPIx_t *pSPIx,uint8_t flag);
 void RB_SPI_ClearOVRFlag(SPIx_t *pSPIx);
 void RB_SPI_CloseTx(SPIx_Handler_t *pSPIHandle);

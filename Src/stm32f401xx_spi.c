@@ -414,6 +414,28 @@ void SPI_SSI_Config(SPIx_t *pSPIx,uint8_t state){
 		pSPIx->CR1 &= ~(1 << SPI_CR1_SSI);
 	}
 }
+
+/********************************************************************
+ * @fn				- SPI_SSOE_Config
+ *
+ * @brief			- Enable/Disable the SSOE Bit
+ *
+ * @param[in]		- Pointer on SPI Peripehral
+ * @param[in]		- State (ENABLE or DISABLE)
+ *
+ * @return 			- NONE
+ *
+ * @note			- NONE
+ */
+void SPI_SSOE_Config(SPIx_t *pSPIx,uint8_t state){
+	if (state == ENABLE)
+	{
+		pSPIx->CR2 |= (1 << SPI_CR2_SSOE);
+	}else
+	{
+		pSPIx->CR2 &= ~(1 << SPI_CR2_SSOE);
+	}
+}
 /********************************************************************
  * @fn				- RB_SPI_GetFlag
  *

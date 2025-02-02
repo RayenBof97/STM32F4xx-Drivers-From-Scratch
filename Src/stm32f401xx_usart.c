@@ -71,6 +71,8 @@ void RB_USART_Init(USARTx_Handler_t *pUSARTHandle){
 	//Enable The Clock
 	RB_USART_PeriClockControl(pUSARTHandle->pUSARTx, ENABLE);
 
+
+
 }
 
 /********************************************************************

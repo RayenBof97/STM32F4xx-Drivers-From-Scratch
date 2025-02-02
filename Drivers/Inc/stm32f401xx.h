@@ -842,5 +842,6 @@ typedef struct{
 #include "stm32f401xx_gpio.h"
 #include "stm32f401xx_spi.h"
 #include "stm32f401xx_usart.h"
+#include "stm32f401xx_rcc.h"
 #endif /* INC_STM32F401XX_H_ */
 

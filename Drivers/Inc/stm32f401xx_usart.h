@@ -132,6 +132,6 @@ void
 /*
  * Application callback
  */
-void USART_ApplicationEventCallback(USART_Handle_t *pUSARTHandle,uint8_t AppEv);
+void USART_ApplicationEventCallback(USARTx_Handler_t *pUSARTHandle,uint8_t AppEv);
 
 #endif /* INC_STM32F401XX_USART_H_ */

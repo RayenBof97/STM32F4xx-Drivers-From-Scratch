@@ -19,6 +19,9 @@
 #include "stm32f401xx.h"
 
 
+#define HSE_VALUE	 80000000
+#define HSI_VALUE 	 16000000
+
 /**************************************************************************************************
  * 									APIs Supported by this driver
  *					For further informations, please check the functions definition

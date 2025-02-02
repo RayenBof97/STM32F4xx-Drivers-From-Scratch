@@ -238,7 +238,7 @@ void RB_USART_Data_TX(USARTx_Handler_t *pUSARTHandle,uint8_t *pTxBuffer,uint32_t
 	}
 
 	//Wait until TC flag is set in the SR
-	while( ! USART_GetFlagStatus(pUSARTHandle->pUSARTx,USART_SR_TC));
+	while( ! RB_USART_GetFlagStatus(pUSARTHandle->pUSARTx,USART_SR_TC));
 }
 
 /********************************************************************
@@ -320,7 +320,7 @@ void RB_USART_Data_RX(USARTx_Handler_t *pUSARTHandle,uint8_t *pRxBuffer,uint32_t
  * @note			- This API is a non-blocking call
  */
 uint8_t RB_USART_Data_TXIT(USARTx_Handler_t *pUSARTHandle,uint8_t *pTxBuffer,uint32_t len){
-
+	return 0 ;
 }
 
 /********************************************************************

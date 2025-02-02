@@ -21,7 +21,7 @@ typedef struct{
 	uint8_t USART_WordLength;					/*!<Value from @USART_WordLength*/
 	uint8_t USART_ParityControl;				/*!<Value from @USART_ParityControl*/
 	uint8_t USART_HWFlowControl;				/*!<Value from @USART_HWFlowControl*/
-}USARTx_PinConfig_t;
+}USARTx_Config_t;
 
 
 /*
@@ -30,7 +30,7 @@ typedef struct{
 
 typedef struct{
 	USARTx_t *pUSARTx;
-	USARTx_PinConfig_t USART_PinConfig;
+	USARTx_Config_t USART_Config;
 }USARTx_Handler_t;
 
 
@@ -45,7 +45,7 @@ typedef struct{
  * @USART_Baud
  */
 #define USART_STD_BAUD_1200					1200
-#define USART_STD_BAUD_2400					400
+#define USART_STD_BAUD_2400					2400
 #define USART_STD_BAUD_9600					9600
 #define USART_STD_BAUD_19200 				19200
 #define USART_STD_BAUD_38400 				38400

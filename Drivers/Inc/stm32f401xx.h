@@ -600,7 +600,7 @@ typedef struct{
 #define USART_CR3_DMAR		6
 #define USART_CR3_DMAT		7
 #define USART_CR3_RTSE		8
-#define USART_CR3_CSTE		9
+#define USART_CR3_CTSE		9
 #define USART_CR3_CTSIE		10
 #define USART_CR3_ONEBIT	11
 
@@ -837,5 +837,6 @@ typedef struct{
 
 #include "stm32f401xx_gpio.h"
 #include "stm32f401xx_spi.h"
+#include "stm32f401xx_usart.h"
 #endif /* INC_STM32F401XX_H_ */
 

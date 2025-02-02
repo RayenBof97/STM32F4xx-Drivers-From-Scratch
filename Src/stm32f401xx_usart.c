@@ -320,7 +320,7 @@ void RB_USART_Data_RX(USARTx_Handler_t *pUSARTHandle,uint8_t *pRxBuffer,uint32_t
  * @note			- This API is a non-blocking call
  */
 uint8_t RB_USART_Data_TXIT(USARTx_Handler_t *pUSARTHandle,uint8_t *pTxBuffer,uint32_t len){
-	return 0;
+
 }
 
 /********************************************************************
@@ -471,7 +471,7 @@ uint8_t RB_USART_GetFlagStatus(USARTx_t *pUSARTx,uint8_t flag)
  * @note			- NONE
  */
 void RB_USART_ClearFlag(USARTx_t *pUSARTx,uint8_t flag){
-
+	pUSARTx->SR &= ~(1 << flag);
 }
 
 /*********************************************************************

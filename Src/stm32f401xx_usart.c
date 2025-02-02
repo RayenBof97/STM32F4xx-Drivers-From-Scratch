@@ -75,7 +75,7 @@ void RB_USART_Init(USARTx_Handler_t *pUSARTHandle){
 
 /******************************** Configuration of CR1******************************************/
 
-	//Enable USART Tx and Rx engines according to the USART_Mode configuration item
+	//Enable USART Tx and Rx engines according to the USART_Mode configuration
 	if ( pUSARTHandle->USART_Config.USART_Mode == USART_MODE_RX)
 	{
 		//Enable the RX Mode
@@ -153,10 +153,8 @@ void RB_USART_Init(USARTx_Handler_t *pUSARTHandle){
 
 /******************************** Configuration of BRR(Baudrate register)******************************************/
 
-	//Implement the code to configure the baud rate
-	//We will cover this in the lecture. No action required here
-
-
+	//Baud Rate Configuration
+	USART_SetBaudRate(pUSARTHandle->pUSARTx,pUSARTHandle->USART_Config.USART_Baud);
 
 }
 
@@ -388,4 +386,79 @@ void RB_USART_ClearFlag(USARTx_t *pUSARTx,uint8_t flag){
 
 }
 
+/*********************************************************************
+ * @fn      		  - USART_SetBaudRate
+ *
+ * @brief             -	Configure the Baud rate in the BRR Register
+ *
+ * @param[in]         - USART Peripheral
+ * @param[in]         -	Baudrate (Values chosen from @USART_Baud)
+ *
+ * @return            - NONE
+ *
+ * @Note              - NONE
 
+ */
+void USART_SetBaudRate(USARTx_t *pUSARTx, uint32_t BaudRate)
+{
+
+	//Variable to hold the APB clock
+	uint32_t PCLKx;
+
+	uint32_t usartdiv;
+
+	//variables to hold Mantissa and Fraction values
+	uint32_t M_part,F_part;
+
+	uint32_t tempreg=0;
+
+  //Get the value of APB bus clock in to the variable PCLKx
+  if(pUSARTx == USART1 || pUSARTx == USART6)
+  {
+	   //USART1 and USART6 are hanging on APB2 bus
+	   PCLKx = RCC_GetPCLK2Value();
+  }else
+  {
+	  //USART2 is hanging on the APB1 Bus
+	   PCLKx = RCC_GetPCLK1Value();
+  }
+
+  //Check for OVER8 configuration bit
+  if(pUSARTx->CR1 & (1 << USART_CR1_OVER8))
+  {
+	   //OVER8 = 1 : over sampling by 8
+	   usartdiv = ((25*PCLKx) / (2 *BaudRate)); //We multiplied by 100 to keep the fractional part
+  }else
+  {
+	   //OVER8 = 0 : over sampling by 16
+	  usartdiv = ((25*PCLKx) / (4 *BaudRate)); //Same thing in here
+  }
+
+  //Calculate the Mantissa part
+  M_part = usartdiv/100;
+
+  //Place the Mantissa part in the BRR (at the Bit USART_BRR_MANTISSA = 4)
+  tempreg |= M_part << USART_BRR_MANTISSA;
+
+  //Extract the fraction part
+  F_part = (usartdiv - (M_part * 100));
+
+  //Calculate the final fractional
+  if(pUSARTx->CR1 & ( 1 << USART_CR1_OVER8))
+   {
+	  //OVER8 = 1 : over sampling by 8
+	  F_part = ((( F_part * 8)+ 50) / 100) & ((uint8_t)0x07);
+
+   }else
+   {
+	   //OVER8 = 0 : over sampling by 16
+	   F_part = ((( F_part * 16)+ 50) / 100) & ((uint8_t)0x0F);
+
+   }
+
+  //Place the fraction in the USART_BRR_Fraction
+  tempreg |= F_part << USART_BRR_FRACTION;
+
+  //Copy tempreg to Baud Rate Register
+  pUSARTx->BRR = tempreg;
+}

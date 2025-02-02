@@ -126,6 +126,7 @@ void RB_USART_IRQHandling(USARTx_Handler_t *pUSARTHandle);
 void USART_PeriphControl(USARTx_t *pUSARTx,uint8_t state);
 uint8_t RB_USART_GetFlagStatus(USARTx_t *pUSARTx,uint8_t flag);
 void RB_USART_ClearFlag(USARTx_t *pUSARTx,uint8_t flag);
+void USART_SetBaudRate(USARTx_t *pUSARTx, uint32_t BaudRate);
 
 /*
  * Application callback

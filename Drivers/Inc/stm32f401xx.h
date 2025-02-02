@@ -604,6 +604,9 @@ typedef struct{
 #define USART_CR3_CTSIE		10
 #define USART_CR3_ONEBIT	11
 
+/*USART_BRR*/
+#define USART_BRR_FRACTION	0
+#define USART_BRR_MANTISSA	4
 /*
  * @USART_Flags
 */
@@ -618,6 +621,7 @@ typedef struct{
 #define USART_SR_TXE		7
 #define USART_SR_LBD		8
 #define USART_SR_CTS		9
+
 
 
 /*

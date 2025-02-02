@@ -104,8 +104,8 @@ void RB_USART_DeInit(USARTx_t *pUSARTx);
 /*
  * USART Data TX and RX (Poll mode)
  */
-void RB_USART_Data_TX(USARTx_t *pUSARTx,uint8_t *pTxBuffer,uint32_t len);
-void RB_USART_Data_RX(USARTx_t *pUSARTx,uint8_t *pRxBuffer,uint32_t len);
+void RB_USART_Data_TX(USARTx_Handler_t *pUSARTHandle,uint8_t *pTxBuffer,uint32_t len);
+void RB_USART_Data_RX(USARTx_Handler_t *pUSARTHandle,uint8_t *pRxBuffer,uint32_t len);
 
 /*
  * USART Data TX and RX (Interruption mode)
@@ -126,7 +126,8 @@ void RB_USART_IRQHandling(USARTx_Handler_t *pUSARTHandle);
 void USART_PeriphControl(USARTx_t *pUSARTx,uint8_t state);
 uint8_t RB_USART_GetFlagStatus(USARTx_t *pUSARTx,uint8_t flag);
 void RB_USART_ClearFlag(USARTx_t *pUSARTx,uint8_t flag);
-void USART_SetBaudRate(USARTx_t *pUSARTx, uint32_t BaudRate);
+void
+;
 
 /*
  * Application callback

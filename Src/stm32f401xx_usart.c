@@ -196,8 +196,49 @@ void RB_USART_DeInit(USARTx_t *pUSARTx){
  * @return 			- NONE
  * @note			- This API is a blocking call
  */
-void RB_USART_Data_TX(SPIx_t *pUSARTx,uint8_t *pTxBuffer,uint32_t len){
+void RB_USART_Data_TX(USARTx_Handler_t *pUSARTHandle,uint8_t *pTxBuffer,uint32_t len){
 
+	uint16_t *pdata;
+
+	for(uint32_t i = 0 ; i < len; i++)
+	{
+		//Wait until TXE flag is set in the SR (Until TXE is empty)
+		while(! RB_USART_GetFlagStatus(pUSARTHandle->pUSARTx,USART_SR_TXE));
+
+         //Check the Data word Length
+		if(pUSARTHandle->USART_Config.USART_WordLength == USART_WORDLEN_9BITS)
+		{
+			//if 9BIT, load the DR with 2bytes masking the bits other than first 9 bits
+			pdata = (uint16_t*) pTxBuffer;
+			pUSARTHandle->pUSARTx->DR = (*pdata & (uint16_t)0x01FF);
+
+			//check for USART_ParityControl
+			if(pUSARTHandle->USART_Config.USART_ParityControl == USART_PARITY_DISABLE) //We have 9 Bits of user data
+			{
+				//No parity is used in this transfer. so, 9bits of user data will be sent
+				//Implement the code to increment pTxBuffer twice
+				pTxBuffer++;
+				pTxBuffer++;
+			}
+			else
+			{
+				//Parity bit is used in this transfer . so , 8bits of user data will be sent
+				//The 9th bit will be replaced by parity bit by the hardware
+				pTxBuffer++;
+			}
+		}
+		else //In case of 8Bits word Length
+		{
+			//This is 8bit data transfer
+			pUSARTHandle->pUSARTx->DR = (*pTxBuffer  & (uint8_t)0xFF);
+
+			//Increment the buffer address
+			pTxBuffer++;
+		}
+	}
+
+	//Wait until TC flag is set in the SR
+	while( ! USART_GetFlagStatus(pUSARTHandle->pUSARTx,USART_SR_TC));
 }
 
 /********************************************************************
@@ -392,7 +433,7 @@ void RB_USART_ClearFlag(USARTx_t *pUSARTx,uint8_t flag){
  * @brief             -	Configure the Baud rate in the BRR Register
  *
  * @param[in]         - USART Peripheral
- * @param[in]         -	Baudrate (Values chosen from @USART_Baud)
+ * @param[in]         -	Baud rate (Values chosen from @USART_Baud)
  *
  * @return            - NONE
  *

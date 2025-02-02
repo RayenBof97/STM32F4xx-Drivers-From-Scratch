@@ -245,5 +245,62 @@ void RB_USART_IRQHandling(USARTx_Handler_t *pUSARTHandle){
 
 }
 
+/*
+ * Others APIs
+ */
+/********************************************************************
+ * @fn				- USART_PeriphControl
+ *
+ * @brief			- Enable/Disable the USART Peripheral
+ *
+ * @param[in]		- Pointer on USART Peripheral
+ * @param[in]		- State (ENABLE or DISABLE)
+ *
+ * @return 			- NONE
+ *
+ * @note			- The USART Peripheral is Disabled by default to allow control configuration on the USART Peripheral
+ */
+void USART_PeriphControl(USARTx_t *pUSARTx,uint8_t state){
+	if (state == ENABLE)
+	{
+		pUSARTx->CR1 |= (1 << USART_CR1_UE);
+	}else
+	{
+		pUSARTx->CR1 &= ~(1 << USART_CR1_UE);
+	}
+}
+
+/********************************************************************
+ * @fn				- RB_USART_GetFlagStatus
+ *
+ * @brief			- Return the status of specific flag
+ *
+ * @param[in]		- Pointer on USART Peripheral
+ * @param[in]		- Desired Flag (Use the Bit position in the SPI_SR Register)
+ *
+ * @return 			- Status of the flag
+ *
+ * @note			- NONE
+ */
+uint8_t RB_USART_GetFlagStatus(USARTx_t *pUSARTx,uint8_t flag)
+{
+	return ((pUSARTx->SR & flag) ? FLAG_SET : FLAG_RESET);
+}
+
+/********************************************************************
+ * @fn				- RB_USART_ClearFlag
+ *
+ * @brief			- Clear a specific Flag
+ *
+ * @param[in]		- Pointer on USART Peripheral
+ * @param[in]		- Desired Flag (Use the Bit position in the SPI_SR Register)
+ *
+ * @return 			- NONE
+ *
+ * @note			- NONE
+ */
+void RB_USART_ClearFlag(USARTx_t *pUSARTx,uint8_t flag){
+
+}
 
 

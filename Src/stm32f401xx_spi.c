@@ -436,20 +436,21 @@ void SPI_SSOE_Config(SPIx_t *pSPIx,uint8_t state){
 		pSPIx->CR2 &= ~(1 << SPI_CR2_SSOE);
 	}
 }
+
 /********************************************************************
- * @fn				- RB_SPI_GetFlag
+ * @fn				- RB_SPI_GetFlagStatus
  *
  * @brief			- Return the status of specific flag
  *
  * @param[in]		- Pointer on SPI Peripheral
- * @param[in]		- Desired Flag (Macros defined @SPI_Flags , or use the Bit position in the SPI_SR Register
+ * @param[in]		- Desired Flag (Use the Bit position in the SPI_SR Register)
  *
  * @return 			- Status of the flag (FLAG_SET or FLAG_RESET)
  *
  * @note			- NONE
  */
-uint8_t RB_SPI_GetFlagStatus(SPIx_t *pSPIx,uint8_t flag){
-	return (pSPIx->SR & (1 << flag));
+uint8_t RB_SPI_GetFlagStatus(SPIx_t *pSPIx, uint8_t flag) {
+    return ((pSPIx->SR & flag) ? FLAG_SET : FLAG_RESET);
 }
 
 /********************************************************************

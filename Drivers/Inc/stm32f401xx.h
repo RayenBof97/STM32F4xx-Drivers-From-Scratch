@@ -716,6 +716,13 @@ typedef struct{
 #define USART2			((USARTx_t*)USART2_BASEADDR)
 #define USART6			((USARTx_t*)USART6_BASEADDR)
 
+/*
+ * I2C Base Adress Typecasted to I2Cx_t
+ */
+#define I2C1			((I2Cx_t*)I2C1_BASEADDR)											/*!< 	Typecasting I2C1_BASEADDR Peripheral to I2Cx_t* */
+#define I2C2			((I2Cx_t*)I2C2_BASEADDR)											/*!< 	Typecasting I2C2_BASEADDR Peripheral to I2Cx_t* */
+#define I2C3			((I2Cx_t*)I2C3_BASEADDR)											/*!< 	Typecasting I2C3_BASEADDR Peripheral to I2Cx_t* */
+
 
 /*
  * Clock Enable Macros for GPIOx peripherals

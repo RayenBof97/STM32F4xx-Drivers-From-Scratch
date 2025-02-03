@@ -320,7 +320,23 @@ void RB_USART_Data_RX(USARTx_Handler_t *pUSARTHandle,uint8_t *pRxBuffer,uint32_t
  * @note			- This API is a non-blocking call
  */
 uint8_t RB_USART_Data_TXIT(USARTx_Handler_t *pUSARTHandle,uint8_t *pTxBuffer,uint32_t len){
-	return 0 ;
+	uint8_t txstate = pUSARTHandle->TxState;
+
+	if(txstate != USART_BUSY_IN_TX)
+	{
+		pUSARTHandle->TxLen = Len;
+		pUSARTHandle->pTxBuffer = pTxBuffer;
+		pUSARTHandle->TxState = USART_BUSY_IN_TX;
+
+		//Enable interrupt for Transmission
+		pUSARTHandle->pUSARTx->CR1 = (1 << USART_CR1_TXEIE);
+
+
+		//Enable Interrupt for TC (Transmission Complete)
+		pUSARTHandle->pUSARTx->CR1 = (1 << USART_CR1_TCIE);
+	}
+
+	return txstate;
 }
 
 /********************************************************************
@@ -336,7 +352,20 @@ uint8_t RB_USART_Data_TXIT(USARTx_Handler_t *pUSARTHandle,uint8_t *pTxBuffer,uin
  * @note			- This API is also a non-blocking call
  */
 uint8_t RB_USART_Data_RXIT(USARTx_Handler_t *pUSARTHandle,uint8_t *pRxBuffer,uint32_t len){
-	return 0;
+	uint8_t rxstate = pUSARTHandle->RxState;
+
+	if(rxstate != USART_BUSY_IN_RX)
+	{
+		pUSARTHandle->RxLen = Len;
+		pUSARTHandle->pRxBuffer = pRxBuffer;
+		pUSARTHandle->RxBusyState = USART_BUSY_IN_RX;
+
+		//Implement the code to enable interrupt for RXNE
+		pUSARTHandle->pUSARTx->CR1 = (1 << USART_CR1_RXNEIE);
+
+	}
+
+	return rxstate;
 }
 
 /*

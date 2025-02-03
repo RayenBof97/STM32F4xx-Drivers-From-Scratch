@@ -31,6 +31,12 @@ typedef struct{
 typedef struct{
 	USARTx_t *pUSARTx;
 	USARTx_Config_t USART_Config;
+	uint8_t *pTxBuffer;								/*!<Storing the Application Tx Buffer */
+	uint8_t *pRxBuffer;								/*!<Storing the Application Rx Buffer*/
+	uint32_t TxLen;									/*!<Length of the app Tx Buffer*/
+	uint32_t RxLen;									/*!<Length of the app Rx Buffer*/
+	uint8_t TxState;								/*!<Sotring the state of Tx*/
+	uint8_t RxState;								/*!<Storing the state of Rx*/
 }USARTx_Handler_t;
 
 
@@ -85,6 +91,13 @@ typedef struct{
 #define USART_HWFLOW_CTRL_CTS    	1
 #define USART_HWFLOW_CTRL_RTS    	2
 #define USART_HWFLOW_CTRL_CTS_RTS	3
+
+/*
+ * USART Application states
+ */
+#define USART_READY 		0
+#define USART_BUSY_IN_RX	1
+#define USART_BUSY_IN_TX	2
 
 /**************************************************************************************************
  * 									APIs Supported by this driver

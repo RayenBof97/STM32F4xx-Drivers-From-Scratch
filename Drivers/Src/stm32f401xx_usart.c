@@ -441,9 +441,263 @@ void RB_USART_IRQPriorityConfig(uint8_t IRQNumber, uint32_t Priority){
  *
  * @note			- NONE
  */
-void RB_USART_IRQHandling(USARTx_Handler_t *pUSARTHandle){
+void RB_USART_IRQHandling(USARTx_Handler_t *pUSARTHandle)
+{
+
+	uint8_t temp1 , temp2, temp3;
+
+	uint16_t *pdata;
+
+/*************************Check for TC flag ************************************/
+
+    //Check if Transmission in Completed
+	temp1 = RB_USART_GetFlagStatus(pUSARTHandle->pUSARTx, USART_SR_TC);
+	 //Check if TC Interruption is enabled
+	temp2 = pUSARTHandle->pUSARTx->CR1 & ( 1 << USART_CR1_TCIE);
+
+	if(temp1 && temp2 ) //Interrupted by Transmission Completed
+	{
+		//close transmission and call application callback if TxLen is zero
+		if ( pUSARTHandle->TxState == USART_BUSY_IN_TX)
+		{
+			//If Length = 0 ; Close the TX
+			if(! pUSARTHandle->TxLen )
+			{
+				//Clear the TC flag
+				RB_USART_ClearFlag(pUSARTHandle->pUSARTx,USART_SR_TC);
+
+				//Implement the code to clear the TCIE control bit
+				pUSARTHandle->pUSARTx->CR1 &= ~( 1 << USART_CR1_TCIE);
+				//Reset the application state
+				pUSARTHandle->TxState = USART_READY;
+
+				//Buffer Reset
+				pUSARTHandle->pTxBuffer = NULL;
+
+				//Length Reset
+				pUSARTHandle->TxLen = 0;
+
+				//Call the application call back with event USART_EVENT_TX_CMPLT
+				USART_ApplicationEventCallback(pUSARTHandle,USART_EVENT_TX_CMPLT);
+			}
+		}
+	}
+
+/*************************Check for TXE flag *************************************/
+
+	//Implement the code to check the state of TXE bit in the SR
+	temp1 =	RB_USART_GetFlagStatus(pUSARTHandle->pUSARTx, USART_SR_TXE);
+
+	//Implement the code to check the state of TXEIE bit in CR1
+	temp2 = pUSARTHandle->pUSARTx->CR1 & ( 1 << USART_CR1_TXEIE);
+
+
+	if(temp1 && temp2 ) // Interrupted by TX
+	{
+
+		if(pUSARTHandle->TxState == USART_BUSY_IN_TX)
+		{
+			//Sending Data Until Len = 0
+			if(pUSARTHandle->TxLen > 0)
+			{
+				//Check the Word Length (9 Bits or 8Bits)
+				if(pUSARTHandle->USART_Config.USART_WordLength == USART_WORDLEN_9BITS)
+				{
+					pdata = (uint16_t*) pUSARTHandle->pTxBuffer; //Type-casting Buffer to Pointer on 2 bytes
+					pUSARTHandle->pUSARTx->DR = (*pdata & (uint16_t)0x01FF); //Loading 2 Bytes of data and masking First 9 Bits
+
+					//check for USART_ParityControl
+					if(pUSARTHandle->USART_Config.USART_ParityControl == USART_PARITY_DISABLE)
+					{
+						//No parity is used in this transfer , so 9bits of user data will be sent
+						//Implement the code to increment pTxBuffer twice
+						pUSARTHandle->pTxBuffer++;
+						pUSARTHandle->pTxBuffer++;
+						pUSARTHandle->TxLen-=2;
+					}
+					else
+					{
+						//Parity bit is used in this transfer . so 8bits of user data will be sent
+						//The 9th bit will be replaced by parity bit by the hardware
+						pUSARTHandle->pTxBuffer++;
+						pUSARTHandle->TxLen-=1;
+					}
+				}
+				else
+				{
+					//This is 8bit data transfer
+					pUSARTHandle->pUSARTx->DR = (*pUSARTHandle->pTxBuffer  & (uint8_t)0xFF);
+
+					//Implement the code to increment the buffer address
+					pUSARTHandle->pTxBuffer++;
+					pUSARTHandle->TxLen-=1;
+				}
+
+			}
+			if (pUSARTHandle->TxLen == 0 ) ////TxLen is zero
+			{
+				//disable interrupt for TX
+				pUSARTHandle->pUSARTx->CR1 &= ~( 1 << USART_CR1_TXEIE);
+			}
+		}
+	}
+
+/*************************Check for RXNE flag ************************************/
+
+	temp1 =	RB_USART_GetFlagStatus(pUSARTHandle->pUSARTx, USART_SR_RXNE);
+	temp2 = pUSARTHandle->pUSARTx->CR1 & ( 1 << USART_CR1_RXNEIE);
+
+
+	if(temp1 && temp2 ) //Interrupted by RXNE
+	{
+		if(pUSARTHandle->RxState == USART_BUSY_IN_RX)
+		{
+			if(pUSARTHandle->RxLen > 0)
+			{
+				//Check the Word Length (9 Bits or 8Bits)
+				if(pUSARTHandle->USART_Config.USART_WordLength == USART_WORDLEN_9BITS)
+				{
+					//Now, check are we using USART_ParityControl control or not
+					if(pUSARTHandle->USART_Config.USART_ParityControl == USART_PARITY_DISABLE)
+					{
+						//No parity is used , so all 9bits will be of user data
+						*((uint16_t*) pUSARTHandle->pRxBuffer) = (pUSARTHandle->pUSARTx->DR  & (uint16_t)0x01FF);
+						//Increment the Buffer 2 times (2 Bytes)
+						pUSARTHandle->pRxBuffer++;
+						pUSARTHandle->pRxBuffer++;
+						pUSARTHandle->RxLen-=2;
+					}
+					else
+					{
+						//Parity is used : 8 Bits of User Data and 1 Parity Bit
+						 *pUSARTHandle->pRxBuffer = (pUSARTHandle->pUSARTx->DR  & (uint8_t)0xFF);
+						 pUSARTHandle->pRxBuffer++;
+						 pUSARTHandle->RxLen-=1;
+					}
+				}
+				else
+				{
+					//Data Word Length = 8 Bits
+					//Now, check are we using USART_ParityControl control or not
+					if(pUSARTHandle->USART_Config.USART_ParityControl == USART_PARITY_DISABLE)
+					{
+						//No parity is used : 8 Bits of user Data
+						//Read 8 Bits
+						 *pUSARTHandle->pRxBuffer = (uint8_t) (pUSARTHandle->pUSARTx->DR  & (uint8_t)0xFF);
+
+					}
+					else
+					{
+						//Parity is used, so , 7 Data Bits and 1 Parity Bit
+						//Read First 7 Bits
+						 *pUSARTHandle->pRxBuffer = (uint8_t) (pUSARTHandle->pUSARTx->DR  & (uint8_t)0x7F);
+
+					}
+					//Increment the buffer
+					pUSARTHandle->pRxBuffer++;
+					pUSARTHandle->RxLen-=1;
+				}
+
+			}
+			if(! pUSARTHandle->RxLen)
+			{
+				//Disable Reception
+				pUSARTHandle->pUSARTx->CR1 &= ~( 1 << USART_CR1_RXNEIE);
+				pUSARTHandle->RxState = USART_READY;
+				USART_ApplicationEventCallback(pUSARTHandle,USART_EVENT_RX_CMPLT);
+			}
+		}
+	}
+
+
+/*************************Check for CTS flag ********************************************/
+//Note : CTS feature is not applicable for UART4 and UART5
+
+	//Check the status of CTS Flag
+	temp1 = RB_USART_GetFlagStatus(pUSARTHandle->pUSARTx, USART_SR_CTS);
+
+	//Check the state of CTSE bit in CR1
+	temp2 = pUSARTHandle->pUSARTx->CR3 & ( 1 << USART_CR3_CTSE);
+
+	//Check CTSIE bit in CR3 (Not available for UART4 & UART5)
+	temp3 = pUSARTHandle->pUSARTx->CR3 & ( 1 << USART_CR3_CTSIE);
+
+
+	if(temp1  && temp2 && temp3) //Interrupted by CTS
+	{
+		//Clear the CTS flag in SR
+		RB_USART_ClearFlag(pUSARTHandle->pUSARTx,USART_SR_CTS);
+
+		USART_ApplicationEventCallback(pUSARTHandle,USART_EVENT_CTS);
+	}
+
+/*************************Check for IDLE detection flag **********************************/
+
+	//Check the status of IDLE flag bit in the SR
+	temp1 = RB_USART_GetFlagStatus(pUSARTHandle->pUSARTx, USART_SR_IDLE);
+
+	//Check the state of IDLEIE bit in CR1
+	temp2 = pUSARTHandle->pUSARTx->CR1 & ( 1 << USART_CR1_IDLEIE);
+
+
+	if(temp1 && temp2) //Interruption generated by Idle Line Detection
+	{
+		//Clear the IDLE flag. Refer to the RM to understand the clear sequence
+		temp1 = pUSARTHandle->pUSARTx->SR &= ~( 1 << USART_SR_IDLE);
+		USART_ApplicationEventCallback(pUSARTHandle,USART_EVENT_IDLE);
+	}
+
+/*************************Check for Overrun detection flag ********************************************/
+
+	//Implement the code to check the status of ORE flag  in the SR
+	temp1 = RB_USART_GetFlagStatus(pUSARTHandle->pUSARTx, USART_SR_ORE);
+	//Check the status of RXNEIE  bit in the CR1
+	temp2 = pUSARTHandle->pUSARTx->CR1 & (1 << USART_CR1_RXNEIE);
+
+	if(temp1  && temp2) //Interrupted by Overrun error
+	{
+		//Need not to clear the ORE flag here, instead give an API for the application to clear the ORE flag .
+		USART_ApplicationEventCallback(pUSARTHandle,USART_ERR_ORE);
+	}
+
+
+/*************************Check for Error Flag ********************************************/
+
+//The blow code will get executed in only if multibuffer mode is used.
+
+	temp2 =  pUSARTHandle->pUSARTx->CR3 & ( 1 << USART_CR3_EIE) ;
+
+	if(temp2)
+	{
+
+		if(RB_USART_GetFlagStatus(pUSARTHandle->pUSARTx, USART_SR_FE))
+		{
+			/*
+				This bit is set by hardware when a de-synchronization, excessive noise or a break character
+				is detected. It is cleared by a software sequence (an read to the USART_SR register
+				followed by a read to the USART_DR register). (This Can be cleared in the application API)
+			*/
+			USART_ApplicationEventCallback(pUSARTHandle,USART_ERR_FE);
+		}
+
+		if(RB_USART_GetFlagStatus(pUSARTHandle->pUSARTx, USART_SR_NF))
+		{
+			/*
+				This bit is set by hardware when noise is detected on a received frame. It is cleared by a
+				software sequence (an read to the USART_SR register followed by a read to the
+				USART_DR register).	(This Can be cleared in the application API)
+			*/
+			USART_ApplicationEventCallback(pUSARTHandle,USART_ERR_NF);
+		}
+
+		if(RB_USART_GetFlagStatus(pUSARTHandle->pUSARTx, USART_SR_ORE))
+		{
+			USART_ApplicationEventCallback(pUSARTHandle,USART_ERR_ORE);
+		}
+	}
 
 }
+
 
 /*
  * Others APIs

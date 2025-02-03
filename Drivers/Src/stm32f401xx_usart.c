@@ -324,7 +324,7 @@ uint8_t RB_USART_Data_TXIT(USARTx_Handler_t *pUSARTHandle,uint8_t *pTxBuffer,uin
 
 	if(txstate != USART_BUSY_IN_TX)
 	{
-		pUSARTHandle->TxLen = Len;
+		pUSARTHandle->TxLen = len;
 		pUSARTHandle->pTxBuffer = pTxBuffer;
 		pUSARTHandle->TxState = USART_BUSY_IN_TX;
 
@@ -356,9 +356,9 @@ uint8_t RB_USART_Data_RXIT(USARTx_Handler_t *pUSARTHandle,uint8_t *pRxBuffer,uin
 
 	if(rxstate != USART_BUSY_IN_RX)
 	{
-		pUSARTHandle->RxLen = Len;
+		pUSARTHandle->RxLen = len;
 		pUSARTHandle->pRxBuffer = pRxBuffer;
-		pUSARTHandle->RxBusyState = USART_BUSY_IN_RX;
+		pUSARTHandle->RxState = USART_BUSY_IN_RX;
 
 		//Implement the code to enable interrupt for RXNE
 		pUSARTHandle->pUSARTx->CR1 = (1 << USART_CR1_RXNEIE);

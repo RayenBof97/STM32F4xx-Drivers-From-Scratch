@@ -237,6 +237,7 @@ uint8_t RB_SPI_Data_TXIT(SPIx_Handler_t *pSPIHandle,uint8_t *pTxBuffer,uint32_t 
 	}
 	return state;
 }
+
 /********************************************************************
  * @fn				- RB_SPI_Data_RXIT
  *
@@ -383,6 +384,7 @@ void RB_SPI_IRQHandling(SPIx_Handler_t *pSPIHandle){
  * @note			- The SPI Peripheral is Disabled by default to allow control configuration on the SPI Peripheral
  */
 void SPI_PeriphControl(SPIx_t *pSPIx,uint8_t state){
+
 	if (state == ENABLE)
 	{
 		pSPIx->CR1 |= (1 << SPI_CR1_SPE);
@@ -565,6 +567,7 @@ static void Spi_Ovr_Err_IT_Handler(SPIx_Handler_t *pSPIHandle){
 /*
  * Application CallBack Functions
  */
+//This an application callback function that user can override
 __weak void SPI_ApplicationEventCallback(SPIx_Handler_t *pSPIHandle,uint8_t event){
-	//This an application callback function that user can override
+
 }

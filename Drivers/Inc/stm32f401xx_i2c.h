@@ -67,20 +67,18 @@ void RB_I2C_IRQPriorityConfig(uint8_t IRQNumber, uint32_t Priority);
 void RB_I2C_IRQHandling(I2Cx_Handler_t *pSPIHandle);
 
 /*
- * Application Callback Functions
- */
-void I2C_ApplicationEventCallback(I2Cx_Handler_t *pI2CHandle,uint8_t event);
-/*
  * Others APIs
  */
 void I2C_PeriphControl(I2Cx_t *pI2Cx,uint8_t state);
 uint8_t RB_I2C_GetFlagStatus(I2Cx_t *pI2Cx,uint8_t flag);
-void RB_I2C_ClearOVRFlag(I2Cx_t *pI2Cx);
+void RB_I2C_ClearOVRFlag(I2Cx_t *pI2Cx,uint8_t flag);
 void RB_I2C_CloseTx(I2Cx_Handler_t *pI2CHandle);
 void RB_I2C_CloseRx(I2Cx_Handler_t *pI2CHandle);
 
-
-
+/*
+ * Application Callback Functions
+ */
+void I2C_ApplicationEventCallback(I2Cx_Handler_t *pI2CHandle,uint8_t event);
 
 
 #endif /* INC_STM32F401XX_I2C_H_ */

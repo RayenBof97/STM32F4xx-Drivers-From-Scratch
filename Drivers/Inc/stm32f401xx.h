@@ -676,6 +676,14 @@ typedef struct{
 #define I2C_SR2_DUALF		27
 #define I2C_SR2_PEC			28
 
+/*I2C_CCR*/
+#define I2C_CCR 			0
+#define I2C_CCR_DUTY		14
+#define I2C_CCR_FS			15
+/*I2C_TRISE*/
+#define I2C_TRISE 			0
+
+
 /*
  * Peripherals Base Addresses typecasted to  GPIOx_t*
  */
@@ -902,5 +910,6 @@ typedef struct{
 #include "stm32f401xx_spi.h"
 #include "stm32f401xx_usart.h"
 #include "stm32f401xx_rcc.h"
+#include "stm32f401xx_i2c.h"
 #endif /* INC_STM32F401XX_H_ */
 

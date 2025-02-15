@@ -15,22 +15,30 @@
 #include "stm32f401xx.h"
 
 typedef struct{
-
+	uint32_t I2C_SCLSpeed;							/*!<Value from @SCL_Speed*/
+	uint8_t I2C_DeviceAddress;						/*!<Stores Address of Device*/
+	uint8_t I2C_ACKControl;							/*!<Value from @ACK_Control*/
+	uint16_t I2C_FMDutyCycle;						/*!<Value from @Duty_Cycle*/
 }I2Cx_Config_t;
 
 typedef struct{
 	I2Cx_t *pI2Cx;									/*!<Base Address of the SPI Peripheral*/
 	I2Cx_Config_t I2C_Config;						/*!<Structure of SPI Configuration*/
-	uint8_t *pTxBuffer;								/*!<Storing the Application Tx Buffer */
-	uint8_t *pRxBuffer;								/*!<Storing the Application Rx Buffer*/
-	uint32_t TxLen;									/*!<Length of the app Tx Buffer*/
-	uint32_t RxLen;									/*!<Length of the app Rx Buffer*/
-	uint8_t TxState;								/*!<Sotring the state of Tx*/
-	uint8_t RxState;								/*!<Storing the state of Rx*/
 }I2Cx_Handler_t;
 
 
+/*@SCL_Speed*/
+#define I2C_SCL_SPEED_STANDARD 100000
+#define I2C_SCL_SPEED_FAST200K 200000
+#define I2C_SCL_SPEED_FAST400K 400000
 
+/*@ACK_Control*/
+#define I2C_ACK_DISABLE 		0
+#define I2C_ACK_ENABLE			1
+
+/*@Duty_Cycle*/
+#define I2C_FM_DUTY_2			0
+#define I2C_FM_DUTY_16_9		1
 
 /**************************************************************************************************
  * 									APIs Supported by this driver
@@ -48,32 +56,21 @@ void RB_I2C_Init(I2Cx_Handler_t *pI2CHandle);
 void RB_I2C_DeInit(I2Cx_t *pI2Cx);
 
 /*
- * I2C Data TX and RX (Poll mode)
+ * I2C Data TX and RX
  */
-void RB_I2C_Data_TX(I2Cx_t *pI2Cx,uint8_t *pTxBuffer,uint32_t len);
-void RB_I2C_Data_RX(I2Cx_t *pI2Cx,uint8_t *pRxBuffer,uint32_t len);
-
-/*
- * I2C Data TX and RX (Interruption mode)
- */
-uint8_t RB_I2C_Data_TXIT(I2Cx_Handler_t *pI2CHandle,uint8_t *pTxBuffer,uint32_t len);
-uint8_t RB_I2C_Data_RXIT(I2Cx_Handler_t *pI2CHandle,uint8_t *pRxBuffer,uint32_t len);
 
 /*
  * I2C IRQ Configuration an ISR handling
  */
 void RB_I2C_IRQITConfig(uint8_t IRQNumber, uint8_t state);
 void RB_I2C_IRQPriorityConfig(uint8_t IRQNumber, uint32_t Priority);
-void RB_I2C_IRQHandling(I2Cx_Handler_t *pSPIHandle);
+
 
 /*
  * Others APIs
  */
 void I2C_PeriphControl(I2Cx_t *pI2Cx,uint8_t state);
 uint8_t RB_I2C_GetFlagStatus(I2Cx_t *pI2Cx,uint8_t flag);
-void RB_I2C_ClearOVRFlag(I2Cx_t *pI2Cx,uint8_t flag);
-void RB_I2C_CloseTx(I2Cx_Handler_t *pI2CHandle);
-void RB_I2C_CloseRx(I2Cx_Handler_t *pI2CHandle);
 
 /*
  * Application Callback Functions

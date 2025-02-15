@@ -11,6 +11,7 @@
 */
 
 #include "stm32f401xx_i2c.h"
+#include "stm32f401xx_rcc.h"
 /*
  * I2C Peripheral Clock Control
  */
@@ -39,11 +40,11 @@ void RB_I2C_PeriClockControl(I2Cx_t *pI2Cx, uint8_t State){
 			}
 		} else {  // DISABLE state
 			if (pI2Cx == I2C1) {
-				I2C1_PCLK_EN();
+				I2C1_PCLK_DI();
 			} else if (pI2Cx == I2C2) {
-				I2C2_PCLK_EN();
+				I2C2_PCLK_DI();
 			} else if (pI2Cx == I2C3) {
-				I2C3_PCLK_EN();
+				I2C3_PCLK_DI();
 			}
 	}
 }
@@ -64,6 +65,46 @@ void RB_I2C_PeriClockControl(I2Cx_t *pI2Cx, uint8_t State){
  * @note			- NONE
  */
 void RB_I2C_Init(I2Cx_Handler_t *pI2CHandle){
+
+	//Configuring ACK Bit in CR1 Register
+	pI2CHandle->pI2Cx->CR1 |= pI2CHandle->I2C_Config.I2C_ACKControl << 10;
+
+	//Configure FREQ in the CR2
+	pI2CHandle->pI2Cx->CR2 &= ~(0x3F);
+	pI2CHandle->pI2Cx->CR2 |= (RCC_GetPCLK1Value() / 1000000) & 0x3F;
+
+	//Own Address
+	pI2CHandle->pI2Cx->OAR1 &= ~(0xFE);
+	pI2CHandle->pI2Cx->OAR1 |= (uint16_t)(pI2CHandle->I2C_Config.I2C_DeviceAddress << 1) | (1 << 14);
+
+	//CCR Calculation
+	uint16_t ccr = 0;
+	if (pI2CHandle->I2C_Config.I2C_SCLSpeed <= I2C_SCL_SPEED_STANDARD)
+	{
+		//Standard Mode
+		pI2CHandle->pI2Cx->CCR &= ~(1 << I2C_CCR_FS);
+		ccr = (RCC_GetPCLK1Value() / (2 * pI2CHandle->I2C_Config.I2C_SCLSpeed) ) & 0xFFF;
+		pI2CHandle->pI2Cx->CCR &= ~(0xFFF);
+		pI2CHandle->pI2Cx->CCR |= ccr;
+
+
+	}else
+	{
+		//Fast Mode
+		pI2CHandle->pI2Cx->CCR |= (1 << I2C_CCR_FS) | (pI2CHandle->I2C_Config.I2C_FMDutyCycle << I2C_CCR_DUTY);
+
+		if(pI2CHandle->I2C_Config.I2C_FMDutyCycle == 0)
+		{
+			ccr = (RCC_GetPCLK1Value() / (3 * pI2CHandle->I2C_Config.I2C_SCLSpeed) ) & 0xFFF;
+		}else
+		{
+			ccr = (RCC_GetPCLK1Value() / (25 * pI2CHandle->I2C_Config.I2C_SCLSpeed) ) & 0xFFF;
+		}
+		pI2CHandle->pI2Cx->CCR &= ~(0xFFF);
+		pI2CHandle->pI2Cx->CCR |= ccr;
+	}
+
+
 
 }
 
@@ -224,22 +265,6 @@ void RB_I2C_IRQPriorityConfig(uint8_t IRQNumber, uint32_t Priority){
 	*( NVIC_IPR + iprx ) |= (Priority << shift) ;
 }
 
-/********************************************************************
- * @fn				- RB_I2C_IRQHandling
- *
- * @brief			- Handling the IRQ on I2C Peripherals
- *
- * @param[in]		- Pointer on a I2C_handler Structure containing the pointer of I2C peripheral and its configuration
- *
- * @return 			- NONE
- *
- * @note			- NONE
- */
-void RB_I2C_IRQHandling(I2Cx_Handler_t *pSPIHandle){
-
-}
-
-
 /*
  * Others APIs
  */
@@ -288,63 +313,6 @@ uint8_t RB_I2C_GetFlagStatus(I2Cx_t *pI2Cx, uint8_t flag) {
 }
 
 
-
-/********************************************************************
- * @fn				- RB_I2C_ClearOVRFlag
- *
- * @brief			- Clear the OVR Flag in Application
- *
- * @param[in]		- Pointer on I2C Peripheral
- *
- * @return 			- NONE
- *
- * @note			- Used when OVR Error Happen
- */
-void RB_I2C_ClearOVRFlag(I2Cx_t *pI2Cx,uint8_t flag){
-	if (flag < 20) {
-		pI2Cx->SR1 &= ~(1 << flag);
-	} else
-	{
-		pI2Cx->SR1 &= ~(1 << (flag-20) );
-	}
-}
-
-/********************************************************************
- * @fn				- RB_I2C_CloseTx
- *
- * @brief			- Close the I2C Transmission
- *
- * @param[in]		- Pointer on I2C Handler
- *
- * @return 			- NONE
- *
- * @note			- NONE
- */
-void RB_I2C_CloseTx(I2Cx_Handler_t *pI2CHandle){
-
-}
-
-/********************************************************************
- * @fn				- RB_I2C_CloseRx
- *
- * @brief			- Close the I2C Reception
- *
- * @param[in]		- Pointer on I2C Handler
- *
- * @return 			- NONE
- *
- * @note			- NONE
- */
-void RB_I2C_CloseRx(I2Cx_Handler_t *pI2CHandle){
-
-}
-
-
-
-/*
- * Application Callback Functions
- */
-//This an application callback function that user can override
 
 
 

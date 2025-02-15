@@ -833,3 +833,10 @@ void USART_SetBaudRate(USARTx_t *pUSARTx, uint32_t BaudRate)
   //Copy tempreg to Baud Rate Register
   pUSARTx->BRR = tempreg;
 }
+
+/*
+ * Call-Back Function
+ */
+__weak void USART_ApplicationEventCallback(USARTx_Handler_t *pUSARTHandle,uint8_t AppEv){
+
+}

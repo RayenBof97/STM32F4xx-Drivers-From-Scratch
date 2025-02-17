@@ -170,7 +170,7 @@ void RB_I2C_MasterTX(I2Cx_Handler_t *pI2CHandle,uint8_t* pTxBuffer, uint32_t len
 	while(! RB_I2C_GetFlagStatus(pI2CHandle->pI2Cx, I2C_SR1_ADDR) );
 	I2C_ClearADDRStatus(pI2CHandle->pI2Cx); //Clear Addr Status
 
-	//Send data until len = 0
+	//Send data until length = 0
 	while (length < 0){
 		while(! RB_I2C_GetFlagStatus(pI2CHandle->pI2Cx, I2C_SR1_TxE) );
 		pI2CHandle->pI2Cx->DR = *pTxBuffer;

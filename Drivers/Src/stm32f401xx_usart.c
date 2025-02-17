@@ -738,7 +738,7 @@ void USART_PeriphControl(USARTx_t *pUSARTx,uint8_t state){
  */
 uint8_t RB_USART_GetFlagStatus(USARTx_t *pUSARTx,uint8_t flag)
 {
-	return ((pUSARTx->SR & flag) ? FLAG_SET : FLAG_RESET);
+	return ((pUSARTx->SR & (1<<flag)) ? FLAG_SET : FLAG_RESET);
 }
 
 /********************************************************************

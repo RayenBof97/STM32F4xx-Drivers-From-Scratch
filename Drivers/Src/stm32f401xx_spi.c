@@ -452,7 +452,7 @@ void SPI_SSOE_Config(SPIx_t *pSPIx,uint8_t state){
  * @note			- NONE
  */
 uint8_t RB_SPI_GetFlagStatus(SPIx_t *pSPIx, uint8_t flag) {
-    return ((pSPIx->SR & flag) ? FLAG_SET : FLAG_RESET);
+    return ((pSPIx->SR & (1 << flag)) ? FLAG_SET : FLAG_RESET);
 }
 
 /********************************************************************

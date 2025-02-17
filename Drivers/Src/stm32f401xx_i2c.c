@@ -136,20 +136,26 @@ void RB_I2C_DeInit(I2Cx_t *pI2Cx){
  */
 
 /********************************************************************
- * @fn				- RB_I2C_Data_TX
+ * @fn				- RB_I2C_MasterTX
  *
- * @brief			- Transfer Data (Poll mode)
+ * @brief			- Master Transfer Data to slave (Poll mode)
  *
- * @param[in]		- a pointer on the I2C Structure
+ * @param[in]		- a pointer on the I2C Handler
  * @param[in]		- The Buffer which will contain the Transferred data
  * @param[in]       - The length of the message
+ * @param[in]		- Slave Address to send to
  *
  * @return 			- NONE
  * @note			- This API is a blocking call
  */
-void RB_I2C_Data_TX(I2Cx_t *pI2Cx,uint8_t *pTxBuffer,uint32_t len){
+void RB_I2C_MasterTX(I2Cx_Handler_t *pI2CHandle,uint8_t* pTxBuffer, uint32_t length, uint8_t SlaveAddr){
+
+	//START Condition
+	pI2CHandle->pI2Cx->CR1 |= (1 << I2C_CR1_START);
+	//Check SB Flag (Check if Start Generation is completed)
 
 }
+
 
 /********************************************************************
  * @fn				- RB_I2C_Data_RX
@@ -305,12 +311,13 @@ void I2C_PeriphControl(I2Cx_t *pI2Cx,uint8_t state){
  */
 uint8_t RB_I2C_GetFlagStatus(I2Cx_t *pI2Cx, uint8_t flag) {
 	if (flag < 20) {
-		return (pI2Cx->SR1 & flag) ? FLAG_SET : FLAG_RESET;
+		return (pI2Cx->SR1 & (1 << flag)) ? FLAG_SET : FLAG_RESET;
 	} else
 	{
-		return (pI2Cx->SR2 & (flag - 20)) ? FLAG_SET : FLAG_RESET;
+		return (pI2Cx->SR2 & (1<<(flag - 20))) ? FLAG_SET : FLAG_RESET;
 	}
 }
+
 
 
 

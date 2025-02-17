@@ -58,7 +58,7 @@ void RB_I2C_DeInit(I2Cx_t *pI2Cx);
 /*
  * I2C Data TX and RX
  */
-
+void RB_I2C_MasterTX(I2Cx_Handler_t *pI2CHandle,uint8_t* pTxBuffer, uint32_t length, uint8_t SlaveAddr);
 /*
  * I2C IRQ Configuration an ISR handling
  */

@@ -12,6 +12,12 @@
 
 #include "stm32f401xx_i2c.h"
 #include "stm32f401xx_rcc.h"
+
+static void I2C_ClearADDRStatus(I2Cx_t* pI2Cx){
+	uint32_t dummy = pI2Cx->SR1;
+	dummy = pI2Cx->SR2;
+	(void)dummy;
+}
 /*
  * I2C Peripheral Clock Control
  */
@@ -153,6 +159,30 @@ void RB_I2C_MasterTX(I2Cx_Handler_t *pI2CHandle,uint8_t* pTxBuffer, uint32_t len
 	//START Condition
 	pI2CHandle->pI2Cx->CR1 |= (1 << I2C_CR1_START);
 	//Check SB Flag (Check if Start Generation is completed)
+	while(! RB_I2C_GetFlagStatus(pI2CHandle->pI2Cx, I2C_SR1_SB) );
+
+	//Send the Addr of the slave with R/NW
+	SlaveAddr = SlaveAddr << 1;
+	SlaveAddr &= ~(0x1); //SlaveAddr = SlaveAddr (7Bits) + R/NW bit
+	pI2CHandle->pI2Cx->DR = SlaveAddr; // Here SB Flag is cleared
+
+	//Check if Addr is sent by chekcing the ADDR Flag
+	while(! RB_I2C_GetFlagStatus(pI2CHandle->pI2Cx, I2C_SR1_ADDR) );
+	I2C_ClearADDRStatus(pI2CHandle->pI2Cx); //Clear Addr Status
+
+	//Send data until len = 0
+	while (length < 0){
+		while(! RB_I2C_GetFlagStatus(pI2CHandle->pI2Cx, I2C_SR1_TxE) );
+		pI2CHandle->pI2Cx->DR = *pTxBuffer;
+		pTxBuffer++;
+		length--;
+	}
+
+	//Wait for TXE = 1 and BTF = 1 Before generating the stop condition
+	// NOTE : When BTF = 1 SCL will be stretched to low
+	while(! RB_I2C_GetFlagStatus(pI2CHandle->pI2Cx, I2C_SR1_TxE) );
+	while(! RB_I2C_GetFlagStatus(pI2CHandle->pI2Cx, I2C_SR1_BTF) );
+	pI2CHandle->pI2Cx->CR1 |= (1 << I2C_CR1_STOP);
 
 }
 

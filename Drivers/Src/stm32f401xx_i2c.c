@@ -124,7 +124,6 @@ void RB_I2C_Init(I2Cx_Handler_t *pI2CHandle){
 			trise = ((RCC_GetPCLK1Value()*300)/ 1000000000U ) + 1;
 		}
 		pI2CHandle->pI2Cx->TRISE |= (trise & 0x3F);
-
 }
 
 /********************************************************************
@@ -212,7 +211,10 @@ void RB_I2C_MasterTX(I2Cx_Handler_t *pI2CHandle,uint8_t* pTxBuffer, uint32_t len
  * @return 			- NONE
  * @note			- This API is also a blocking call
  */
-void RB_I2C_Data_RX(I2Cx_t *pI2Cx,uint8_t *pRxBuffer,uint32_t len){
+void RB_I2C_MasterRX(I2Cx_Handler_t *pI2CHandle,uint8_t* pRxBuffer, uint32_t length, uint8_t SlaveAddr){
+	//START Condition
+	pI2CHandle->pI2Cx->CR1 |= (1 << I2C_CR1_START);
+
 
 }
 

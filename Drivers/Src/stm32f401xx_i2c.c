@@ -110,7 +110,20 @@ void RB_I2C_Init(I2Cx_Handler_t *pI2CHandle){
 		pI2CHandle->pI2Cx->CCR |= ccr;
 	}
 
+	//Configuring TRISE
+	if (pI2CHandle->I2C_Config.I2C_SCLSpeed <= I2C_SCL_SPEED_STANDARD)
+		{
+			//Standard Mode
+			uint8_t trise ;
+			trise = (RCC_GetPCLK1Value() / 1000000U) + 1;
 
+		}else
+		{
+			//Fast Mode
+			uint8_t trise;
+			trise = ((RCC_GetPCLK1Value()*300)/ 1000000000U ) + 1;
+		}
+		pI2CHandle->pI2Cx->TRISE |= (trise & 0x3F);
 
 }
 

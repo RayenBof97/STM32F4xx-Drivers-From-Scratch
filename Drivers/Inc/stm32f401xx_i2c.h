@@ -24,8 +24,22 @@ typedef struct{
 typedef struct{
 	I2Cx_t *pI2Cx;									/*!<Base Address of the SPI Peripheral*/
 	I2Cx_Config_t I2C_Config;						/*!<Structure of SPI Configuration*/
+	uint8_t *pTxBuffer;								/*!<Store the Adress of the Application TxBuffer*/
+	uint8_t *pRxBuffer;								/*!<Store the Adress of the Application RxBuffer*/
+	uint32_t TxLen;									/*!<Store the Tx Length*/
+	uint32_t RxLen;									/*!<Store the Rx Length*/
+	uint8_t TxRxState;								/*!<Store the communication state*/
+	uint8_t DevAddr;								/*!<To store Slave device Address*/
+	uint32_t RxSize;								/*!<Store the Rx Size*/
+	uint8_t Sr;										/*!<Store the repeated start value*/
 }I2Cx_Handler_t;
 
+/*
+ * I2C Application State
+ */
+#define I2C_READY 				0
+#define I2C_BUSY_TX				1
+#define I2C_BUSY_RX				2
 
 /*@SCL_Speed*/
 #define I2C_SCL_SPEED_STANDARD 100000
@@ -60,6 +74,9 @@ void RB_I2C_DeInit(I2Cx_t *pI2Cx);
  */
 void RB_I2C_MasterTX(I2Cx_Handler_t *pI2CHandle,uint8_t* pTxBuffer, uint32_t length, uint8_t SlaveAddr);
 void RB_I2C_MasterRX(I2Cx_Handler_t *pI2CHandle,uint8_t* pRxBuffer, uint32_t length, uint8_t SlaveAddr);
+
+uint8_t RB_I2C_MasterTX_IT(I2Cx_Handler_t *pI2CHandle,uint8_t* pTxBuffer, uint32_t length, uint8_t SlaveAddr);
+uint8_t RB_I2C_MasterRX_IT(I2Cx_Handler_t *pI2CHandle,uint8_t* pRxBuffer, uint32_t length, uint8_t SlaveAddr);
 /*
  * I2C IRQ Configuration an ISR handling
  */
@@ -72,6 +89,7 @@ void RB_I2C_IRQPriorityConfig(uint8_t IRQNumber, uint32_t Priority);
  */
 void I2C_PeriphControl(I2Cx_t *pI2Cx,uint8_t state);
 uint8_t RB_I2C_GetFlagStatus(I2Cx_t *pI2Cx,uint8_t flag);
+void RB_I2C_ManageAcking(I2Cx_t *pI2Cx,uint8_t status);
 
 /*
  * Application Callback Functions

@@ -61,6 +61,15 @@
 #define IRQ_NO_USART2								38
 #define IRQ_NO_USART6								71
 
+/*
+ * I2C IRQ Positions
+ */
+#define IRQ_NO_I2C1_EV								31
+#define IRQ_NO_I2C1_ER								32
+#define IRQ_NO_I2C1_EV								33
+#define IRQ_NO_I2C1_ER								34
+#define IRQ_NO_I2C1_EV								79
+#define IRQ_NO_I2C1_ER								80
 
 /*
  * IRQ Priority Levels

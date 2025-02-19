@@ -214,8 +214,56 @@ void RB_I2C_MasterTX(I2Cx_Handler_t *pI2CHandle,uint8_t* pTxBuffer, uint32_t len
 void RB_I2C_MasterRX(I2Cx_Handler_t *pI2CHandle,uint8_t* pRxBuffer, uint32_t length, uint8_t SlaveAddr){
 	//START Condition
 	pI2CHandle->pI2Cx->CR1 |= (1 << I2C_CR1_START);
+	//Check SB Flag (Check if Start Generation is completed)
+	while(! RB_I2C_GetFlagStatus(pI2CHandle->pI2Cx, I2C_SR1_SB) );
 
+	//Send the Addr of the slave with R/NW
+	SlaveAddr = SlaveAddr << 1;
+	SlaveAddr |= 0x1; //SlaveAddr = SlaveAddr (7Bits) + R/NW bit = 1
+	pI2CHandle->pI2Cx->DR = SlaveAddr; // Here SB Flag is cleared
 
+	//Check if Addr is sent by chekcing the ADDR Flag
+	while(! RB_I2C_GetFlagStatus(pI2CHandle->pI2Cx, I2C_SR1_ADDR) );
+	if (length == 1)
+	{
+		//Disable Acking
+		RB_I2C_ManageAcking(pI2CHandle->pI2Cx,DISABLE);
+		//Generate Stop Condition
+		pI2CHandle->pI2Cx->CR1 |= (1 << I2C_CR1_STOP);
+		//Clear the ADDR Flag
+		I2C_ClearADDRStatus(pI2CHandle->pI2Cx);
+		//Wait until RXNE = 1
+		while(! RB_I2C_GetFlagStatus(pI2CHandle->pI2Cx, I2C_SR1_RxNE) );
+		//Read data into buffer
+		*pRxBuffer = pI2CHandle->pI2Cx->DR;
+	}
+
+	if (length > 1)
+	{
+		//Clear ADDR Flag
+		I2C_ClearADDRStatus(pI2CHandle->pI2Cx);
+		//Read data until Length = 0
+		for (uint32_t i = length; i > 0 ; i--)
+		{
+			//Wait until RXNE = 1
+			while(! RB_I2C_GetFlagStatus(pI2CHandle->pI2Cx, I2C_SR1_RxNE) );
+			if (i == 2)
+			{
+				//Disable Acking
+				RB_I2C_ManageAcking(pI2CHandle->pI2Cx,DISABLE);
+				//Generate Stop Condition
+				pI2CHandle->pI2Cx->CR1 |= (1 << I2C_CR1_STOP);
+			}
+			//Read Data from DR and increment Buffer
+			*pRxBuffer = pI2CHandle->pI2Cx->DR;
+			pRxBuffer++;
+		}
+	}
+	//Renable the ACK
+	if(pI2CHandle->I2C_Config.I2C_ACKControl == I2C_ACK_ENABLE)
+	{
+		RB_I2C_ManageAcking(pI2CHandle->pI2Cx,ENABLE);
+	}
 }
 
 /*
@@ -223,36 +271,40 @@ void RB_I2C_MasterRX(I2Cx_Handler_t *pI2CHandle,uint8_t* pRxBuffer, uint32_t len
  */
 
 /********************************************************************
- * @fn				- RB_I2C_Data_TXIT
+ * @fn				- RB_I2C_MasterTX_IT
  *
  * @brief			- Transfer Data (Interrupt mode)
  *
  * @param[in]		- a pointer on the I2C Handle Structure
  * @param[in]		- The Buffer which will contain the Transferred data
  * @param[in]       - The length of the message
+ * @param[in]		- The Address of the slave
  *
  * @return 			- Return the state of Tx
  * @note			- This API is a non-blocking call
  */
-uint8_t RB_I2C_Data_TXIT(I2Cx_Handler_t *pI2CHandle,uint8_t *pTxBuffer,uint32_t len){
-	return 0;
+uint8_t RB_I2C_MasterTX_IT(I2Cx_Handler_t *pI2CHandle,uint8_t* pTxBuffer, uint32_t length, uint8_t SlaveAddr){
+
 }
 
+
 /********************************************************************
- * @fn				- RB_I2C_Data_RXIT
+ * @fn				- RB_I2C_MasterRX_IT
  *
  * @brief			- Receive Data (Interrupt Mode)
  *
  * @param[in]		- a pointer on the I2C Handle Structure
  * @param[in]		- The Buffer which will contain the received data
  * @param[in]       - The length of the message
+ * @param[in]		- The Address of the slave
  *
  * @return 			- Return the state of Rx
  * @note			- This API is also a non-blocking call
  */
-uint8_t RB_I2C_Data_RXIT(I2Cx_Handler_t *pI2CHandle,uint8_t *pRxBuffer,uint32_t len){
-	return 0;
+uint8_t RB_I2C_MasterRX_IT(I2Cx_Handler_t *pI2CHandle,uint8_t* pRxBuffer, uint32_t length, uint8_t SlaveAddr){
+
 }
+
 
 /*
  * I2C IRQ Configuration an ISR handling
@@ -363,7 +415,27 @@ uint8_t RB_I2C_GetFlagStatus(I2Cx_t *pI2Cx, uint8_t flag) {
 	}
 }
 
-
+/********************************************************************
+ * @fn				- RB_I2C_ManageAcking
+ *
+ * @brief			- Enable or Disable Acking
+ *
+ * @param[in]		- Pointer on I2C Peripheral
+ * @param[in]		- Desired Status (ENABLE or DISABLE)
+ *
+ * @return 			- NONE
+ *
+ * @note			- NONE
+ */
+void RB_I2C_ManageAcking(I2Cx_t *pI2Cx,uint8_t status){
+	if (status == DISABLE)
+	{
+		pI2Cx->CR1 &= ~(1 << I2C_CR1_ACK);
+	}else
+	{
+		pI2Cx->CR1 |= (1 << I2C_CR1_ACK);
+	}
+}
 
 
 

@@ -116,14 +116,16 @@ void RB_I2C_Init(I2Cx_Handler_t *pI2CHandle){
 			//Standard Mode
 			uint8_t trise ;
 			trise = (RCC_GetPCLK1Value() / 1000000U) + 1;
+			pI2CHandle->pI2Cx->TRISE |= (trise & 0x3F);
 
 		}else
 		{
 			//Fast Mode
 			uint8_t trise;
 			trise = ((RCC_GetPCLK1Value()*300)/ 1000000000U ) + 1;
+			pI2CHandle->pI2Cx->TRISE |= (trise & 0x3F);
 		}
-		pI2CHandle->pI2Cx->TRISE |= (trise & 0x3F);
+
 }
 
 /********************************************************************
@@ -284,7 +286,7 @@ void RB_I2C_MasterRX(I2Cx_Handler_t *pI2CHandle,uint8_t* pRxBuffer, uint32_t len
  * @note			- This API is a non-blocking call
  */
 uint8_t RB_I2C_MasterTX_IT(I2Cx_Handler_t *pI2CHandle,uint8_t* pTxBuffer, uint32_t length, uint8_t SlaveAddr){
-
+return 0;
 }
 
 
@@ -302,7 +304,7 @@ uint8_t RB_I2C_MasterTX_IT(I2Cx_Handler_t *pI2CHandle,uint8_t* pTxBuffer, uint32
  * @note			- This API is also a non-blocking call
  */
 uint8_t RB_I2C_MasterRX_IT(I2Cx_Handler_t *pI2CHandle,uint8_t* pRxBuffer, uint32_t length, uint8_t SlaveAddr){
-
+return 0;
 }
 
 

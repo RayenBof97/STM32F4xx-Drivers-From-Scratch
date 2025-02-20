@@ -75,13 +75,14 @@ void RB_I2C_DeInit(I2Cx_t *pI2Cx);
 void RB_I2C_MasterTX(I2Cx_Handler_t *pI2CHandle,uint8_t* pTxBuffer, uint32_t length, uint8_t SlaveAddr);
 void RB_I2C_MasterRX(I2Cx_Handler_t *pI2CHandle,uint8_t* pRxBuffer, uint32_t length, uint8_t SlaveAddr);
 
-uint8_t RB_I2C_MasterTX_IT(I2Cx_Handler_t *pI2CHandle,uint8_t* pTxBuffer, uint32_t length, uint8_t SlaveAddr);
-uint8_t RB_I2C_MasterRX_IT(I2Cx_Handler_t *pI2CHandle,uint8_t* pRxBuffer, uint32_t length, uint8_t SlaveAddr);
+uint8_t RB_I2C_MasterTX_IT(I2Cx_Handler_t *pI2CHandle,uint8_t* pTxBuffer, uint32_t length, uint8_t SlaveAddr,uint8_t Sr);
+uint8_t RB_I2C_MasterRX_IT(I2Cx_Handler_t *pI2CHandle,uint8_t* pRxBuffer, uint32_t length, uint8_t SlaveAddr,uint8_t Sr);
 /*
  * I2C IRQ Configuration an ISR handling
  */
 void RB_I2C_IRQITConfig(uint8_t IRQNumber, uint8_t state);
 void RB_I2C_IRQPriorityConfig(uint8_t IRQNumber, uint32_t Priority);
+void RB_I2C_EV_IRQHandling(I2Cx_Handler_t *pI2CHandle);
 
 
 /*

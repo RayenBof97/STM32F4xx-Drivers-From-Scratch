@@ -285,8 +285,29 @@ void RB_I2C_MasterRX(I2Cx_Handler_t *pI2CHandle,uint8_t* pRxBuffer, uint32_t len
  * @return 			- Return the state of Tx
  * @note			- This API is a non-blocking call
  */
-uint8_t RB_I2C_MasterTX_IT(I2Cx_Handler_t *pI2CHandle,uint8_t* pTxBuffer, uint32_t length, uint8_t SlaveAddr){
-return 0;
+uint8_t RB_I2C_MasterTX_IT(I2Cx_Handler_t *pI2CHandle,uint8_t* pTxBuffer, uint32_t length, uint8_t SlaveAddr, uint8_t Sr){
+	uint8_t state = pI2CHandle->TxRxState;
+	if( (state != I2C_BUSY_RX) && (state != I2C_BUSY_TX) )
+	{
+		pI2CHandle->pTxBuffer = pTxBuffer;
+		pI2CHandle->TxLen = length;
+		pI2CHandle->TxRxState = I2C_BUSY_TX;
+		pI2CHandle->DevAddr = SlaveAddr;
+		pI2CHandle->Sr = Sr;
+
+		//Generate Start condition
+		pI2CHandle->pI2Cx->CR1 |= (1 << I2C_CR1_START);
+
+		//Enable ITBUFEN
+		pI2CHandle->pI2Cx->CR2 |= (1 << I2C_CR2_ITBUFEN);
+
+		//Enable ITEVFEN
+		pI2CHandle->pI2Cx->CR2 |= (1 << I2C_CR2_ITEVTEN);
+
+		//Enable ITERREN
+		pI2CHandle->pI2Cx->CR2 |= (1 << I2C_CR2_ITERREN);
+	}
+	return state;
 }
 
 
@@ -303,7 +324,7 @@ return 0;
  * @return 			- Return the state of Rx
  * @note			- This API is also a non-blocking call
  */
-uint8_t RB_I2C_MasterRX_IT(I2Cx_Handler_t *pI2CHandle,uint8_t* pRxBuffer, uint32_t length, uint8_t SlaveAddr){
+uint8_t RB_I2C_MasterRX_IT(I2Cx_Handler_t *pI2CHandle,uint8_t* pRxBuffer, uint32_t length, uint8_t SlaveAddr,uint8_t Sr){
 return 0;
 }
 
@@ -370,6 +391,82 @@ void RB_I2C_IRQPriorityConfig(uint8_t IRQNumber, uint32_t Priority){
 	*( NVIC_IPR + iprx ) |= (Priority << shift) ;
 }
 
+/*********************************************************************
+ * @fn      		  - RB_I2C_EV_IRQHandling
+ *
+ * @brief             -	IRQ Handling for I2C Events
+ *
+ * @param[in]         - I2C Peripheral
+
+ * @return            -	NONCE
+ *
+ * @Note              -  Interrupt handling for different I2C events (refer SR1)
+
+ */
+
+
+void RB_I2C_EV_IRQHandling(I2Cx_Handler_t *pI2CHandle)
+{
+
+	//Interrupt handling for both master and slave mode of a device
+	uint32_t temp1,temp2,temp3;
+	temp1 = pI2CHandle->pI2Cx->CR2 & (1 << I2C_CR2_ITEVTEN);
+	temp2 = pI2CHandle->pI2Cx->CR2 & (1 << I2C_CR2_ITBUFEN);
+	temp3 = pI2CHandle->pI2Cx->SR1 & (1 << I2C_SR1_SB);
+
+	//SB (Start bit) Event (Only applicable in Master Mode , It's always 0 in slave)
+	if (temp3 && temp1)
+	{
+		//SB Event is set
+		if(pI2CHandle->TxRxState == I2C_BUSY_TX)
+		{
+			pI2CHandle->DevAddr = pI2CHandle->DevAddr << 1;
+			pI2CHandle->DevAddr &= ~(0x1); //SlaveAddr = SlaveAddr (7Bits) + R/NW bit = 1
+			pI2CHandle->pI2Cx->DR = pI2CHandle->DevAddr; // Here SB Flag is cleared
+
+		}else if(pI2CHandle->TxRxState == I2C_BUSY_RX)
+		{
+			pI2CHandle->DevAddr = pI2CHandle->DevAddr << 1;
+			pI2CHandle->DevAddr |= 0x1; //SlaveAddr = SlaveAddr (7Bits) + R/NW bit = 1
+			pI2CHandle->pI2Cx->DR = pI2CHandle->DevAddr; // Here SB Flag is cleared
+		}
+	}
+	temp3 = pI2CHandle->pI2Cx->SR1 & (1 << I2C_SR1_ADDR);
+	//ADDR Event (MM : When Address is sent , SM : When Address is matched)
+	if (temp3 && temp1)
+	{
+		//ADDR is set
+	}
+
+	temp3 = pI2CHandle->pI2Cx->SR1 & (1 << I2C_SR1_BTF);
+	//BTF(Byte Transfer Finished) event
+	if (temp3 && temp1)
+	{
+		//BTF is set
+	}
+	temp3 = pI2CHandle->pI2Cx->SR1 & (1 << I2C_SR1_STOPF);
+	// STOPF event
+	// Applicable only for slave
+	if (temp3 && temp1)
+	{
+		//STOPF is set
+	}
+
+	temp3 = pI2CHandle->pI2Cx->SR1 & (1 << I2C_SR1_TxE);
+	// TXE event (TX Buffer is empty)
+	if (temp1 & temp2 & temp3)
+	{
+		//TXE is set
+	}
+
+	temp3 = pI2CHandle->pI2Cx->SR1 & (1 << I2C_SR1_RxNE);
+	// RXNE event (RX Buffer is empty)
+	if (temp1 & temp2 & temp3)
+	{
+		//RXNE is set
+	}
+
+}
 /*
  * Others APIs
  */

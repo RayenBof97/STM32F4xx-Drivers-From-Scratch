@@ -13,10 +13,25 @@
 #include "stm32f401xx_i2c.h"
 #include "stm32f401xx_rcc.h"
 
-static void I2C_ClearADDRStatus(I2Cx_t* pI2Cx){
-	uint32_t dummy = pI2Cx->SR1;
-	dummy = pI2Cx->SR2;
-	(void)dummy;
+static void I2C_CloseTx(I2Cx_Handler_t* pI2C_Handle){
+
+}
+static void I2C_ClearADDRStatus(I2Cx_Handler_t* pI2C_Handle) {
+    uint32_t dummy;
+
+    // Check if the device is in MASTER mode
+    if (pI2C_Handle->pI2Cx->SR2 & (1 << I2C_SR2_MSL)) {
+        // MASTER MODE
+        if (pI2C_Handle->TxRxState == I2C_BUSY_RX && pI2C_Handle->RxSize == 1) {
+            // Disable Acknowledgment
+            RB_I2C_ManageAcking(pI2C_Handle->pI2Cx, DISABLE);
+        }
+    }
+
+    // Clear ADDR flag by reading SR1 and SR2
+    dummy = pI2C_Handle->pI2Cx->SR1;
+    dummy = pI2C_Handle->pI2Cx->SR2;
+    (void)dummy; // Suppress unused variable warning
 }
 /*
  * I2C Peripheral Clock Control
@@ -182,7 +197,7 @@ void RB_I2C_MasterTX(I2Cx_Handler_t *pI2CHandle,uint8_t* pTxBuffer, uint32_t len
 
 	//Check if Addr is sent by chekcing the ADDR Flag
 	while(! RB_I2C_GetFlagStatus(pI2CHandle->pI2Cx, I2C_SR1_ADDR) );
-	I2C_ClearADDRStatus(pI2CHandle->pI2Cx); //Clear Addr Status
+	I2C_ClearADDRStatus(pI2CHandle); //Clear Addr Status
 
 	//Send data until length = 0
 	while (length < 0){
@@ -233,7 +248,7 @@ void RB_I2C_MasterRX(I2Cx_Handler_t *pI2CHandle,uint8_t* pRxBuffer, uint32_t len
 		//Generate Stop Condition
 		pI2CHandle->pI2Cx->CR1 |= (1 << I2C_CR1_STOP);
 		//Clear the ADDR Flag
-		I2C_ClearADDRStatus(pI2CHandle->pI2Cx);
+		I2C_ClearADDRStatus(pI2CHandle);
 		//Wait until RXNE = 1
 		while(! RB_I2C_GetFlagStatus(pI2CHandle->pI2Cx, I2C_SR1_RxNE) );
 		//Read data into buffer
@@ -243,7 +258,7 @@ void RB_I2C_MasterRX(I2Cx_Handler_t *pI2CHandle,uint8_t* pRxBuffer, uint32_t len
 	if (length > 1)
 	{
 		//Clear ADDR Flag
-		I2C_ClearADDRStatus(pI2CHandle->pI2Cx);
+		I2C_ClearADDRStatus(pI2CHandle);
 		//Read data until Length = 0
 		for (uint32_t i = length; i > 0 ; i--)
 		{
@@ -436,6 +451,8 @@ void RB_I2C_EV_IRQHandling(I2Cx_Handler_t *pI2CHandle)
 	if (temp3 && temp1)
 	{
 		//ADDR is set
+		I2C_ClearADDRStatus(pI2CHandle->pI2Cx);
+
 	}
 
 	temp3 = pI2CHandle->pI2Cx->SR1 & (1 << I2C_SR1_BTF);
@@ -443,6 +460,30 @@ void RB_I2C_EV_IRQHandling(I2Cx_Handler_t *pI2CHandle)
 	if (temp3 && temp1)
 	{
 		//BTF is set
+		if(pI2CHandle->TxRxState == I2C_BUSY_TX)
+		{
+			if(pI2CHandle->TxLen == 0)
+			{
+				if(pI2CHandle->pI2Cx->SR1 & (1 << I2C_SR1_TxE))
+				{
+					//BTF , TXE are both empty
+					//Close TX (Stop Condition)
+					if(pI2CHandle->Sr == I2C_SR_DISABLE)
+					{
+						pI2CHandle->pI2Cx->CR1 |= (1 << I2C_CR1_STOP);
+					}
+					//Reset all the member elements
+					I2C_CloseTx();
+
+					//Notify the application about TX Completed
+					I2C_ApplicationEventCallback(pI2CHandle,I2C_EV_TX_CMPLT);
+
+				}
+			}
+		}else if (pI2CHandle->TxRxState == I2C_BUSY_RX)
+		{
+			; //NOTHING TO DO
+		}
 	}
 	temp3 = pI2CHandle->pI2Cx->SR1 & (1 << I2C_SR1_STOPF);
 	// STOPF event
@@ -450,20 +491,72 @@ void RB_I2C_EV_IRQHandling(I2Cx_Handler_t *pI2CHandle)
 	if (temp3 && temp1)
 	{
 		//STOPF is set
+		//Need to be cleared
+		pI2CHandle->pI2Cx->CR1 |= 0x0; // To clear the STOPF
+		I2C_ApplicationEventCallback(pI2CHandle,I2C_EV_STOP);
+
 	}
 
 	temp3 = pI2CHandle->pI2Cx->SR1 & (1 << I2C_SR1_TxE);
-	// TXE event (TX Buffer is empty)
+	// TXE event (TX Buffer is empty) (Applicable for Master)
 	if (temp1 & temp2 & temp3)
 	{
-		//TXE is set
+		if(pI2CHandle->pI2Cx->SR1 & (1 << I2C_SR2_MSL))
+		{
+			//Data TX
+			if(pI2CHandle->TxRxState == I2C_BUSY_TX)
+			{
+				if(pI2CHandle->TxLen > 0)
+				{
+					pI2CHandle->pI2Cx->DR = *(pI2CHandle->pTxBuffer);
+					(pI2CHandle->pTxBuffer)++;
+					pI2CHandle->TxLen--;
+				}
+			}
+		}
 	}
 
+
 	temp3 = pI2CHandle->pI2Cx->SR1 & (1 << I2C_SR1_RxNE);
-	// RXNE event (RX Buffer is empty)
+	// RXNE event (RX Buffer is Full)
 	if (temp1 & temp2 & temp3)
 	{
-		//RXNE is set
+		if(pI2CHandle->pI2Cx->SR1 & (1 << I2C_SR2_MSL))
+		{
+			//RXNE is set
+			if(pI2CHandle->TxRxState == I2C_BUSY_RX)
+			{
+				if(pI2CHandle->RxSize == 1)
+				{
+					*pI2CHandle->pRxBuffer = pI2CHandle->pI2Cx->DR;
+					pI2CHandle->RxLen --;
+				}
+
+				if(pI2CHandle->RxLen > 1)
+				{
+					if(pI2CHandle->RxLen == 2)
+					{
+						//Clear ACK
+						RB_I2C_ManageAcking(pI2CHandle->pI2Cx,DISABLE);
+					}
+
+					*pI2CHandle->pRxBuffer = pI2CHandle->pI2Cx->DR;
+					pI2CHandle->RxLen --;
+					pI2CHandle->pRxBuffer++;
+
+				}
+				if(pI2CHandle->RxLen == 0)
+				{
+					//CLOSE THE I2C RX and Notify Application
+					if(pI2CHandle->Sr == I2C_SR_DISABLE)
+						pI2CHandle->pI2Cx->CR1 |= (1 << I2C_CR1_STOP);
+					I2C_CloseRx();
+					I2C_ApplicationEventCallback(pI2CHandle, I2C_EV_RX_CMPLT);
+
+
+				}
+			}
+		}
 	}
 
 }

@@ -31,7 +31,7 @@ typedef struct{
 	uint8_t TxRxState;								/*!<Store the communication state*/
 	uint8_t DevAddr;								/*!<To store Slave device Address*/
 	uint32_t RxSize;								/*!<Store the Rx Size*/
-	uint8_t Sr;										/*!<Store the repeated start value*/
+	uint8_t Sr;										/*!<Store the repeated start value, Values from @SR_Values*/
 }I2Cx_Handler_t;
 
 /*
@@ -53,6 +53,10 @@ typedef struct{
 /*@Duty_Cycle*/
 #define I2C_FM_DUTY_2			0
 #define I2C_FM_DUTY_16_9		1
+
+/*@SR_Values*/
+#define I2C_SR_DISABLE			0
+#define I2C_SR_ENABLE			1
 
 /**************************************************************************************************
  * 									APIs Supported by this driver

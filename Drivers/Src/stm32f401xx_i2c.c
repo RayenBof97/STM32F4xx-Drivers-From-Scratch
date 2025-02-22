@@ -33,13 +33,13 @@ static void I2C_GenerateStopCondition(I2Cx_t *pI2Cx){
 
 static void I2C_ExecuteAddressPhaseWrite(I2Cx_t *pI2Cx,uint8_t SlaveAddr){
 	SlaveAddr = SlaveAddr << 1;
-	SlaveAddr |= 0x1; //SlaveAddr = SlaveAddr (7Bits) + R/NW bit = 1
+	SlaveAddr &= ~(0x1); //SlaveAddr = SlaveAddr (7Bits) + R/NW bit = 0
 	pI2Cx->DR = SlaveAddr; // Here SB Flag is cleared
 }
 
 static void I2C_ExecuteAddressPhaseRead(I2Cx_t *pI2Cx,uint8_t SlaveAddr){
 	SlaveAddr = SlaveAddr << 1;
-	SlaveAddr &= ~(0x1); //SlaveAddr = SlaveAddr (7Bits) + R/NW bit = 0
+	SlaveAddr |= 0x1; //SlaveAddr = SlaveAddr (7Bits) + R/NW bit = 1
 	pI2Cx->DR = SlaveAddr; // Here SB Flag is cleared
 }
 
@@ -268,30 +268,34 @@ void RB_I2C_MasterTX(I2Cx_Handler_t *pI2CHandle,uint8_t* pTxBuffer, uint32_t len
  * @return 			- NONE
  * @note			- This API is also a blocking call
  */
-void RB_I2C_MasterRX(I2Cx_Handler_t *pI2CHandle,uint8_t* pRxBuffer, uint32_t length, uint8_t SlaveAddr){
+void RB_I2C_MasterRX(I2Cx_Handler_t *pI2CHandle,uint8_t* pRxBuffer, uint32_t length, uint8_t SlaveAddr,uint8_t Sr){
 	//START Condition
-	pI2CHandle->pI2Cx->CR1 |= (1 << I2C_CR1_START);
+	I2C_GenerateStartCondition(pI2CHandle->pI2Cx);
 	//Check SB Flag (Check if Start Generation is completed)
+	// Note : SCL Will be stretched (pulled to low) until SB is cleared
 	while(! RB_I2C_GetFlagStatus(pI2CHandle->pI2Cx, I2C_SR1_SB) );
 
 	//Send the Addr of the slave with R/NW
-
+	I2C_ExecuteAddressPhaseRead(pI2CHandle->pI2Cx, SlaveAddr);
 
 	//Check if Addr is sent by chekcing the ADDR Flag
 	while(! RB_I2C_GetFlagStatus(pI2CHandle->pI2Cx, I2C_SR1_ADDR) );
+
 	if (length == 1)
 	{
 		//Disable Acking
 		RB_I2C_ManageAcking(pI2CHandle->pI2Cx,DISABLE);
-		//Generate Stop Condition
-		pI2CHandle->pI2Cx->CR1 |= (1 << I2C_CR1_STOP);
 		//Clear the ADDR Flag
 		I2C_ClearADDRStatus(pI2CHandle);
-		//Wait until RXNE = 1
+		//Wait until RXNE = 1 (RX DR is Full with the sent byte)
 		while(! RB_I2C_GetFlagStatus(pI2CHandle->pI2Cx, I2C_SR1_RxNE) );
+		//Generate Stop Condition
+		if (Sr == I2C_SR_DISABLE)
+			I2C_GenerateStopCondition(pI2CHandle->pI2Cx);
 		//Read data into buffer
 		*pRxBuffer = pI2CHandle->pI2Cx->DR;
 	}
+
 
 	if (length > 1)
 	{
@@ -307,14 +311,15 @@ void RB_I2C_MasterRX(I2Cx_Handler_t *pI2CHandle,uint8_t* pRxBuffer, uint32_t len
 				//Disable Acking
 				RB_I2C_ManageAcking(pI2CHandle->pI2Cx,DISABLE);
 				//Generate Stop Condition
-				pI2CHandle->pI2Cx->CR1 |= (1 << I2C_CR1_STOP);
+				if (Sr == I2C_SR_DISABLE)
+					I2C_GenerateStopCondition(pI2CHandle->pI2Cx);
 			}
 			//Read Data from DR and increment Buffer
 			*pRxBuffer = pI2CHandle->pI2Cx->DR;
 			pRxBuffer++;
 		}
 	}
-	//Renable the ACK
+	//After Transmission , Renable the ACK for future operations
 	if(pI2CHandle->I2C_Config.I2C_ACKControl == I2C_ACK_ENABLE)
 	{
 		RB_I2C_ManageAcking(pI2CHandle->pI2Cx,ENABLE);

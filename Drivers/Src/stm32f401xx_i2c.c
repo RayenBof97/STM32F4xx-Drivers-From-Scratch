@@ -87,41 +87,46 @@ void RB_I2C_PeriClockControl(I2Cx_t *pI2Cx, uint8_t State){
  */
 void RB_I2C_Init(I2Cx_Handler_t *pI2CHandle){
 
+	//Enable the Clock for I2Cx
+	RB_I2C_PeriClockControl(pI2CHandle->pI2Cx, ENABLE);
+
 	//Configuring ACK Bit in CR1 Register
-	pI2CHandle->pI2Cx->CR1 |= pI2CHandle->I2C_Config.I2C_ACKControl << 10;
+	pI2CHandle->pI2Cx->CR1 &= ~(1 << I2C_CR1_ACK);
+	pI2CHandle->pI2Cx->CR1 |= pI2CHandle->I2C_Config.I2C_ACKControl << I2C_CR1_ACK;
 
-	//Configure FREQ in the CR2
-	pI2CHandle->pI2Cx->CR2 &= ~(0x3F);
-	pI2CHandle->pI2Cx->CR2 |= (RCC_GetPCLK1Value() / 1000000) & 0x3F;
+	//Configure Peripheral Clock Frequency in the CR2
+	pI2CHandle->pI2Cx->CR2 &= ~(0x3F); //Clearing
+	pI2CHandle->pI2Cx->CR2 |= ((RCC_GetPCLK1Value() / 1000000U) & 0x3F);
 
-	//Own Address
+	//Device Address (7Bits Adressing mode , we will not care about the 1st, 8th and 9th bits)
 	pI2CHandle->pI2Cx->OAR1 &= ~(0xFE);
-	pI2CHandle->pI2Cx->OAR1 |= (uint16_t)(pI2CHandle->I2C_Config.I2C_DeviceAddress << 1) | (1 << 14);
+	pI2CHandle->pI2Cx->OAR1 |= ((uint16_t)(pI2CHandle->I2C_Config.I2C_DeviceAddress << I2C_OAR1_ADD7_1)) | (1 << I2C_OAR1_ADDMODE);
 
-	//CCR Calculation
+	//CCR (Clock Control Register) Calculation
 	uint16_t ccr = 0;
 	if (pI2CHandle->I2C_Config.I2C_SCLSpeed <= I2C_SCL_SPEED_STANDARD)
 	{
 		//Standard Mode
-		pI2CHandle->pI2Cx->CCR &= ~(1 << I2C_CCR_FS);
-		ccr = (RCC_GetPCLK1Value() / (2 * pI2CHandle->I2C_Config.I2C_SCLSpeed) ) & 0xFFF;
-		pI2CHandle->pI2Cx->CCR &= ~(0xFFF);
+		pI2CHandle->pI2Cx->CCR &= ~(1 << I2C_CCR_FS); //Standard mode (Standard speed)
+		ccr = (RCC_GetPCLK1Value() / (2 * pI2CHandle->I2C_Config.I2C_SCLSpeed) ) & 0xFFF; //Calculate CCR value for SM
+		pI2CHandle->pI2Cx->CCR &= ~(0xFFF); //Clearing
 		pI2CHandle->pI2Cx->CCR |= ccr;
 
 
 	}else
 	{
-		//Fast Mode
-		pI2CHandle->pI2Cx->CCR |= (1 << I2C_CCR_FS) | (pI2CHandle->I2C_Config.I2C_FMDutyCycle << I2C_CCR_DUTY);
+		//Fast Mode (Fast Frequency)
+		pI2CHandle->pI2Cx->CCR |= 1 << I2C_CCR_FS; //Configure Fast Mode
+		pI2CHandle->pI2Cx->CCR |= (pI2CHandle->I2C_Config.I2C_FMDutyCycle << I2C_CCR_DUTY); //Configure FM Duty cycle
 
-		if(pI2CHandle->I2C_Config.I2C_FMDutyCycle == 0)
+		if(pI2CHandle->I2C_Config.I2C_FMDutyCycle == 0) // T_low/T_high = 2
 		{
 			ccr = (RCC_GetPCLK1Value() / (3 * pI2CHandle->I2C_Config.I2C_SCLSpeed) ) & 0xFFF;
-		}else
+		}else // T_low/T_high = 16/9
 		{
 			ccr = (RCC_GetPCLK1Value() / (25 * pI2CHandle->I2C_Config.I2C_SCLSpeed) ) & 0xFFF;
 		}
-		pI2CHandle->pI2Cx->CCR &= ~(0xFFF);
+		pI2CHandle->pI2Cx->CCR &= ~(0xFFF); //Clearing
 		pI2CHandle->pI2Cx->CCR |= ccr;
 	}
 

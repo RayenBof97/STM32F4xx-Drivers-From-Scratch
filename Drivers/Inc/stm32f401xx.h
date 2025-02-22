@@ -689,8 +689,16 @@ typedef struct{
 #define I2C_CCR 			0
 #define I2C_CCR_DUTY		14
 #define I2C_CCR_FS			15
+
 /*I2C_TRISE*/
 #define I2C_TRISE 			0
+
+/*I2C_OAR1*/
+#define I2C_OAR1_ADD0		0
+#define I2C_OAR1_ADD7_1		1
+#define I2C_OAR1_ADD9_8		8
+#define I2C_OAR1_ADDMODE	15
+
 
 
 /*

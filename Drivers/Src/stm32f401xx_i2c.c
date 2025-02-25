@@ -702,70 +702,65 @@ void RB_I2C_EV_IRQHandling(I2Cx_Handler_t *pI2CHandle)
      temp2 = (pI2CHandle->pI2Cx->CR2) & ( 1 << I2C_CR2_ITERREN);
 
 
- /***********************Check for Bus error************************************/
-     temp1 = (pI2CHandle->pI2Cx->SR1) & ( 1<< I2C_SR1_BERR);
+
+     temp1 = RB_I2C_GetFlagStatus(pI2CHandle->pI2Cx, I2C_FLAG_BERR);
      if(temp1  && temp2 )
      {
-         //This is Bus error
+         //BUS ERROR
 
-         //Implement the code to clear the buss error flag
+         //CLEAR BUS ERROR
          pI2CHandle->pI2Cx->SR1 &= ~( 1 << I2C_SR1_BERR);
 
-         //Implement the code to notify the application about the error
+         //Notify the application about a bus error
         I2C_ApplicationEventCallback(pI2CHandle,I2C_ERROR_BERR);
      }
 
- /***********************Check for arbitration lost error************************************/
-     temp1 = (pI2CHandle->pI2Cx->SR1) & ( 1 << I2C_SR1_ARLO );
+     temp1 = RB_I2C_GetFlagStatus(pI2CHandle->pI2Cx, I2C_FLAG_ARLO);
      if(temp1  && temp2)
      {
-         //This is arbitration lost error
+         //ARBITRATION LOST ERROR
 
-         //Implement the code to clear the arbitration lost error flag
+         //CLEAR ARLO ERROR
          pI2CHandle->pI2Cx->SR1 &= ~( 1 << I2C_SR1_ARLO);
 
-         //Implement the code to notify the application about the error
+         //Notify the application about a arbitration lost error
          I2C_ApplicationEventCallback(pI2CHandle,I2C_ERROR_ARLO);
 
      }
 
- /***********************Check for ACK failure  error************************************/
-
-     temp1 = (pI2CHandle->pI2Cx->SR1) & ( 1 << I2C_SR1_AF);
+     temp1 = RB_I2C_GetFlagStatus(pI2CHandle->pI2Cx, I2C_FLAG_AF);
      if(temp1  && temp2)
      {
-         //This is ACK failure error
+         //ACK FAILURE ERROR
 
-         //Implement the code to clear the ACK failure error flag
+    	 //CLEAR ACK ERROR
          pI2CHandle->pI2Cx->SR1 &= ~( 1 << I2C_SR1_AF);
 
          //Implement the code to notify the application about the error
          I2C_ApplicationEventCallback(pI2CHandle,I2C_ERROR_AF);
      }
 
- /***********************Check for Overrun/underrun error************************************/
      temp1 = (pI2CHandle->pI2Cx->SR1) & ( 1 << I2C_SR1_OVR);
      if(temp1  && temp2)
      {
-         //This is Overrun/underrun
+         //OVR ERROR
 
-         //Implement the code to clear the Overrun/underrun error flag
+         //CLEAR OVR ERROR
          pI2CHandle->pI2Cx->SR1 &= ~( 1 << I2C_SR1_OVR);
 
-         //Implement the code to notify the application about the error
+         //Notify the application about the OVR Error
          I2C_ApplicationEventCallback(pI2CHandle,I2C_ERROR_OVR);
      }
 
- /***********************Check for Time out error************************************/
-     temp1 = (pI2CHandle->pI2Cx->SR1) & ( 1 << I2C_SR1_TIMEOUT);
+     temp1 = RB_I2C_GetFlagStatus(pI2CHandle->pI2Cx, I2C_FLAG_TIMEOUT);
      if(temp1  && temp2)
      {
-         //This is Time out error
+         //TIMEOUT ERROR
 
-         //Implement the code to clear the Time out error flag
+         //CLEAR TIMEOUT ERROR
          pI2CHandle->pI2Cx->SR1 &= ~( 1 << I2C_SR1_TIMEOUT);
 
-         //Implement the code to notify the application about the error
+         //Notify the application about the timeout error
          I2C_ApplicationEventCallback(pI2CHandle,I2C_ERROR_TIMEOUT);
      }
 

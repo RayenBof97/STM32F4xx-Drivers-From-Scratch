@@ -58,6 +58,23 @@ typedef struct{
 #define I2C_SR_DISABLE			0
 #define I2C_SR_ENABLE			1
 
+
+/*
+ * I2C Event and Errors Macros
+ */
+
+#define I2C_EV_TX_CMPLT  	 	0
+#define I2C_EV_RX_CMPLT  	 	1
+#define I2C_EV_STOP       		2
+#define I2C_EV_DATA_REQ         3
+#define I2C_EV_DATA_RCV         4
+#define I2C_ERROR_BERR 	 		5
+#define I2C_ERROR_ARLO  		6
+#define I2C_ERROR_AF    		7
+#define I2C_ERROR_OVR   		8
+#define I2C_ERROR_TIMEOUT 		9
+
+
 /**************************************************************************************************
  * 									APIs Supported by this driver
  *					For further informations, please check the functions definition

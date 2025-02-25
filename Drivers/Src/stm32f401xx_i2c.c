@@ -17,8 +17,8 @@ static void I2C_GenerateStartCondition(I2Cx_t *pI2Cx);
 static void I2C_GenerateStopCondition(I2Cx_t *pI2Cx);
 static void I2C_ExecuteAddressPhaseWrite(I2Cx_t *pI2Cx,uint8_t SlaveAddr);
 static void I2C_ExecuteAddressPhaseRead(I2Cx_t *pI2Cx,uint8_t SlaveAddr);
-static void I2C_ClearADDRStatus(I2Cx_Handler_t* pI2C_Handle);
-static void I2C_CloseTx(I2Cx_Handler_t* pI2C_Handle);
+static void I2C_ClearADDRStatus(I2Cx_Handler_t* pI2CHandle);
+static void I2C_CloseTx(I2Cx_Handler_t* pI2CHandle);
 
 /*
  * Static Functions Definitions
@@ -43,26 +43,36 @@ static void I2C_ExecuteAddressPhaseRead(I2Cx_t *pI2Cx,uint8_t SlaveAddr){
 	pI2Cx->DR = SlaveAddr; // Here SB Flag is cleared
 }
 
-static void I2C_ClearADDRStatus(I2Cx_Handler_t* pI2C_Handle) {
+static void I2C_ClearADDRStatus(I2Cx_Handler_t* pI2CHandle) {
     uint32_t dummy;
 
     // Check if the device is in MASTER mode
     if (RB_I2C_GetFlagStatus(pI2Cx, I2C_FLAG_MSL)) {
         // MASTER MODE
-        if (pI2C_Handle->TxRxState == I2C_BUSY_RX && pI2C_Handle->RxSize == 1) {
+        if ( (pI2CHandle->TxRxState == I2C_BUSY_RX) && (pI2CHandle->RxSize == 1) ) {
             // Disable Acknowledgment in one byte transfer , So the slave won't expect to send another byte
-            RB_I2C_ManageAcking(pI2C_Handle->pI2Cx, DISABLE);
+            RB_I2C_ManageAcking(pI2CHandle->pI2Cx, DISABLE);
         }
     }
 
     // Clear ADDR flag by reading SR1 and SR2
-    dummy = pI2C_Handle->pI2Cx->SR1;
-    dummy = pI2C_Handle->pI2Cx->SR2;
+    dummy = pI2CHandle->pI2Cx->SR1;
+    dummy = pI2CHandle->pI2Cx->SR2;
     (void)dummy; // Suppress unused variable warning
 }
 
-static void I2C_CloseTx(I2Cx_Handler_t* pI2C_Handle){
+static void I2C_CloseTx(I2Cx_Handler_t* pI2CHandle){
+	//Disable Interrupts
 
+	//Disable ITBUFEN
+	pI2CHandle->pI2Cx->CR2 &= ~(1 << I2C_CR2_ITBUFEN);
+	//Disable ITEVFEN
+	pI2CHandle->pI2Cx->CR2 &= ~(1 << I2C_CR2_ITEVTEN);
+
+	//Initialise Handler Fields
+	pI2CHandle->TxRxState = I2C_READY;
+	pI2CHandle->TxLen = 0;
+	pI2CHandle->pTxBuffer = NULL;
 }
 
 
@@ -515,43 +525,44 @@ void RB_I2C_EV_IRQHandling(I2Cx_Handler_t *pI2CHandle)
 
 	temp3 = RB_I2C_GetFlagStatus(pI2CHandle->pI2Cx, I2C_FLAG_ADDR); //Check for ADDR Flag
 	//ADDR Event (MM : When Address is sent , SM : When Address is matched)
-	if (temp3 && temp1)
+	if (temp3 && temp1) //Interruption generated from ADDR EV
 	{
-		//ADDR is set
 		I2C_ClearADDRStatus(pI2CHandle->pI2Cx);
-
 	}
 
-	temp3 = pI2CHandle->pI2Cx->SR1 & (1 << I2C_SR1_BTF);
+	temp3 = RB_I2C_GetFlagStatus(pI2CHandle->pI2Cx, I2C_FLAG_BTF);
 	//BTF(Byte Transfer Finished) event
-	if (temp3 && temp1)
+	if (temp1 && temp3)
 	{
-		//BTF is set
-		if(pI2CHandle->TxRxState == I2C_BUSY_TX)
-		{
-			if(pI2CHandle->TxLen == 0)
-			{
-				if(pI2CHandle->pI2Cx->SR1 & (1 << I2C_SR1_TxE))
-				{
-					//BTF , TXE are both empty
-					//Close TX (Stop Condition)
-					if(pI2CHandle->Sr == I2C_SR_DISABLE)
-					{
-						pI2CHandle->pI2Cx->CR1 |= (1 << I2C_CR1_STOP);
-					}
-					//Reset all the member elements
-					I2C_CloseTx();
+	    // Check if the I2C is busy in transmission
+	    if (pI2CHandle->TxRxState == I2C_BUSY_IN_TX)
+	    {
+	        // Ensure TXE is set
+	        if (RB_I2C_GetFlagStatus(pI2CHandle->pI2Cx, I2C_FLAG_TxE))
+	        {
+	            // If BTF and TXE are set and no more data to send
+	            if (pI2CHandle->TxLen == 0)
+	            {
+	                // Generate STOP condition if repeated start is disabled
+	                if (pI2CHandle->Sr == I2C_DISABLE_SR)
+	                {
+	                    I2C_GenerateStopCondition(pI2CHandle->pI2Cx);
+	                }
 
-					//Notify the application about TX Completed
-					I2C_ApplicationEventCallback(pI2CHandle,I2C_EV_TX_CMPLT);
+	                // Reset the handle structure (Close for next Transmissions)
+	                I2C_CloseSendData(pI2CHandle);
 
-				}
-			}
-		}else if (pI2CHandle->TxRxState == I2C_BUSY_RX)
-		{
-			; //NOTHING TO DO
-		}
+	                // Notify the application about transmission completion
+	                I2C_ApplicationEventCallback(pI2CHandle, I2C_EV_TX_CMPLT);
+	            }
+	        }
+	    }
+	    else if (pI2CHandle->TxRxState == I2C_BUSY_IN_RX)
+	    {
+	        // Add handling for receive state if needed in future
+	    }
 	}
+
 	temp3 = pI2CHandle->pI2Cx->SR1 & (1 << I2C_SR1_STOPF);
 	// STOPF event
 	// Applicable only for slave

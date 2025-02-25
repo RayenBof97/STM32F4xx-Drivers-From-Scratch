@@ -699,7 +699,7 @@ typedef struct{
 #define I2C_OAR1_ADD9_8		8
 #define I2C_OAR1_ADDMODE	15
 
-/*I2C_Flags*/
+/*@I2C_Flags*/
 #define I2C_FLAG_SB			0
 #define I2C_FLAG_ADDR		1
 #define I2C_FLAG_BTF		2

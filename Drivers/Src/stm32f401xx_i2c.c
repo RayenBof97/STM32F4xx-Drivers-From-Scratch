@@ -49,7 +49,7 @@ static void I2C_ClearADDRStatus(I2Cx_Handler_t* pI2CHandle) {
     uint32_t dummy;
 
     // Check if the device is in MASTER mode
-    if (RB_I2C_GetFlagStatus(pI2Cx, I2C_FLAG_MSL)) {
+    if (RB_I2C_GetFlagStatus(pI2CHandle->pI2Cx,I2C_FLAG_MSL)) {
         // MASTER MODE
         if ( (pI2CHandle->TxRxState == I2C_BUSY_RX) && (pI2CHandle->RxSize == 1) ) {
             // Disable Acknowledgment in one byte transfer , So the slave won't expect to send another byte
@@ -590,7 +590,7 @@ void RB_I2C_EV_IRQHandling(I2Cx_Handler_t *pI2CHandle)
 	//ADDR Event (MM : When Address is sent , SM : When Address is matched)
 	if (temp3 && temp1) //Interruption generated from ADDR EV
 	{
-		I2C_ClearADDRStatus(pI2CHandle->pI2Cx);
+		I2C_ClearADDRStatus(pI2CHandle);
 	}
 
 	temp3 = RB_I2C_GetFlagStatus(pI2CHandle->pI2Cx, I2C_FLAG_BTF);
@@ -598,7 +598,7 @@ void RB_I2C_EV_IRQHandling(I2Cx_Handler_t *pI2CHandle)
 	if (temp1 && temp3)
 	{
 	    // Check if the I2C is busy in transmission
-	    if (pI2CHandle->TxRxState == I2C_BUSY_IN_TX)
+	    if (pI2CHandle->TxRxState == I2C_BUSY_TX)
 	    {
 	        // Ensure TXE is set
 	        if (RB_I2C_GetFlagStatus(pI2CHandle->pI2Cx, I2C_FLAG_TxE))
@@ -607,7 +607,7 @@ void RB_I2C_EV_IRQHandling(I2Cx_Handler_t *pI2CHandle)
 	            if (pI2CHandle->TxLen == 0)
 	            {
 	                // Generate STOP condition if repeated start SR is disabled
-	                if (pI2CHandle->Sr == I2C_DISABLE_SR)
+	                if (pI2CHandle->Sr == I2C_SR_DISABLE)
 	                {
 	                    I2C_GenerateStopCondition(pI2CHandle->pI2Cx);
 	                }
@@ -620,7 +620,7 @@ void RB_I2C_EV_IRQHandling(I2Cx_Handler_t *pI2CHandle)
 	            }
 	        }
 	    }
-	    else if (pI2CHandle->TxRxState == I2C_BUSY_IN_RX)
+	    else if (pI2CHandle->TxRxState == I2C_BUSY_RX)
 	    {
 	        // Add handling for receive state if needed in future
 	    }

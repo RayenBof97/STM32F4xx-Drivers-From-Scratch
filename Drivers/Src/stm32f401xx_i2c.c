@@ -344,8 +344,10 @@ void RB_I2C_MasterRX(I2Cx_Handler_t *pI2CHandle,uint8_t* pRxBuffer, uint32_t len
  * @note			- This API is a non-blocking call
  */
 uint8_t RB_I2C_MasterTX_IT(I2Cx_Handler_t *pI2CHandle,uint8_t* pTxBuffer, uint32_t length, uint8_t SlaveAddr, uint8_t Sr){
+
 	uint8_t state = pI2CHandle->TxRxState;
-	if( (state != I2C_BUSY_RX) && (state != I2C_BUSY_TX) )
+
+	if( (state != I2C_BUSY_RX) && (state != I2C_BUSY_TX) ) //I2C is Half Duplex
 	{
 		pI2CHandle->pTxBuffer = pTxBuffer;
 		pI2CHandle->TxLen = length;
@@ -354,7 +356,7 @@ uint8_t RB_I2C_MasterTX_IT(I2Cx_Handler_t *pI2CHandle,uint8_t* pTxBuffer, uint32
 		pI2CHandle->Sr = Sr;
 
 		//Generate Start condition
-		pI2CHandle->pI2Cx->CR1 |= (1 << I2C_CR1_START);
+		I2C_GenerateStartCondition(pI2CHandle->pI2Cx);
 
 		//Enable ITBUFEN
 		pI2CHandle->pI2Cx->CR2 |= (1 << I2C_CR2_ITBUFEN);
@@ -367,7 +369,6 @@ uint8_t RB_I2C_MasterTX_IT(I2Cx_Handler_t *pI2CHandle,uint8_t* pTxBuffer, uint32
 	}
 	return state;
 }
-
 
 /********************************************************************
  * @fn				- RB_I2C_MasterRX_IT
@@ -383,7 +384,32 @@ uint8_t RB_I2C_MasterTX_IT(I2Cx_Handler_t *pI2CHandle,uint8_t* pTxBuffer, uint32
  * @note			- This API is also a non-blocking call
  */
 uint8_t RB_I2C_MasterRX_IT(I2Cx_Handler_t *pI2CHandle,uint8_t* pRxBuffer, uint32_t length, uint8_t SlaveAddr,uint8_t Sr){
-return 0;
+
+	uint8_t busystate = pI2CHandle->TxRxState;
+
+	if( (busystate != I2C_BUSY_TX) && (busystate != I2C_BUSY_RX))
+	{
+		pI2CHandle->pTxBuffer = pRxBuffer;
+		pI2CHandle->RxLen = length;
+		pI2CHandle->TxRxState = I2C_BUSY_RX;
+		pI2CHandle->RxSize = length;
+		pI2CHandle->DevAddr = SlaveAddr;
+		pI2CHandle->Sr = Sr;
+
+		//Generate Start Condition
+		I2C_GenerateStartCondition(pI2CHandle->pI2Cx);
+
+		//Enable ITBUFEN
+		pI2CHandle->pI2Cx->CR2 |= (1 << I2C_CR2_ITBUFEN);
+
+		//Enable ITEVFEN
+		pI2CHandle->pI2Cx->CR2 |= (1 << I2C_CR2_ITEVTEN);
+
+		//Enable ITERREN
+		pI2CHandle->pI2Cx->CR2 |= (1 << I2C_CR2_ITERREN);
+
+	}
+	return busystate;
 }
 
 

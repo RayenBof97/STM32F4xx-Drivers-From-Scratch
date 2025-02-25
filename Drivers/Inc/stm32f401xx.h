@@ -676,14 +676,14 @@ typedef struct{
 #define I2C_SR1_SMBALERT	15
 
 /*I2C_SR2*/
-#define I2C_SR2_MSL			20
-#define I2C_SR2_BUSY		21
-#define I2C_SR2_TRA			22
-#define I2C_SR2_GENCALL		24
-#define I2C_SR2_SMBDEFAULT	25
-#define I2C_SR2_SMBHOST		26
-#define I2C_SR2_DUALF		27
-#define I2C_SR2_PEC			28
+#define I2C_SR2_MSL			0
+#define I2C_SR2_BUSY		1
+#define I2C_SR2_TRA			2
+#define I2C_SR2_GENCALL		4
+#define I2C_SR2_SMBDEFAULT	5
+#define I2C_SR2_SMBHOST		6
+#define I2C_SR2_DUALF		7
+#define I2C_SR2_PEC			8
 
 /*I2C_CCR*/
 #define I2C_CCR 			0
@@ -699,7 +699,29 @@ typedef struct{
 #define I2C_OAR1_ADD9_8		8
 #define I2C_OAR1_ADDMODE	15
 
-
+/*I2C_Flags*/
+#define I2C_FLAG_SB			0
+#define I2C_FLAG_ADDR		1
+#define I2C_FLAG_BTF		2
+#define I2C_FLAG_ADD10		3
+#define I2C_FLAG_STOPF		4
+#define I2C_FLAG_RxNE		6
+#define I2C_FLAG_TxE		7
+#define I2C_FLAG_BERR		8
+#define I2C_FLAG_ARLO		9
+#define I2C_FLAG_AF			10
+#define I2C_FLAG_OVR		11
+#define I2C_FLAG_PECERR		12
+#define I2C_FLAG_TIMEOUT	14
+#define I2C_FLAG_SMBALERT	15
+#define I2C_FLAG_MSL		20
+#define I2C_FLAG_BUSY		21
+#define I2C_FLAG_TRA		22
+#define I2C_FLAG_GENCALL	24
+#define I2C_FLAG_SMBDEFAULT	25
+#define I2C_FLAG_SMBHOST	26
+#define I2C_FLAG_DUALF		27
+#define I2C_FLAG_PEC		28
 
 /*
  * Peripherals Base Addresses typecasted to  GPIOx_t*

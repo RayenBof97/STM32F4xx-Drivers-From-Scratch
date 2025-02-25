@@ -18,8 +18,8 @@ static void I2C_GenerateStopCondition(I2Cx_t *pI2Cx);
 static void I2C_ExecuteAddressPhaseWrite(I2Cx_t *pI2Cx,uint8_t SlaveAddr);
 static void I2C_ExecuteAddressPhaseRead(I2Cx_t *pI2Cx,uint8_t SlaveAddr);
 static void I2C_ClearADDRStatus(I2Cx_Handler_t* pI2CHandle);
-static void I2C_CloseTx(I2Cx_Handler_t* pI2CHandle);
-
+static void I2C_CloseTX(I2Cx_Handler_t* pI2CHandle);
+static void I2C_MasterHandleTXEInterrupt(I2Cx_Handler_t *pI2CHandle);
 /*
  * Static Functions Definitions
  */
@@ -61,7 +61,7 @@ static void I2C_ClearADDRStatus(I2Cx_Handler_t* pI2CHandle) {
     (void)dummy; // Suppress unused variable warning
 }
 
-static void I2C_CloseTx(I2Cx_Handler_t* pI2CHandle){
+static void I2C_CloseTX(I2Cx_Handler_t* pI2CHandle){
 	//Disable Interrupts
 
 	//Disable ITBUFEN
@@ -75,6 +75,14 @@ static void I2C_CloseTx(I2Cx_Handler_t* pI2CHandle){
 	pI2CHandle->pTxBuffer = NULL;
 }
 
+static void I2C_MasterHandleTXEInterrupt(I2Cx_Handler_t *pI2CHandle){
+	if (pI2CHandle->TxLen > 0)
+	{
+		pI2CHandle->pI2Cx->DR = *(pI2CHandle->pTxBuffer);
+		pI2CHandle->TxLen--;
+		pI2CHandle->pTxBuffer++;
+	}
+}
 
 /*
  * I2C Peripheral Clock Control
@@ -543,14 +551,14 @@ void RB_I2C_EV_IRQHandling(I2Cx_Handler_t *pI2CHandle)
 	            // If BTF and TXE are set and no more data to send
 	            if (pI2CHandle->TxLen == 0)
 	            {
-	                // Generate STOP condition if repeated start is disabled
+	                // Generate STOP condition if repeated start SR is disabled
 	                if (pI2CHandle->Sr == I2C_DISABLE_SR)
 	                {
 	                    I2C_GenerateStopCondition(pI2CHandle->pI2Cx);
 	                }
 
 	                // Reset the handle structure (Close for next Transmissions)
-	                I2C_CloseSendData(pI2CHandle);
+	                I2C_CloseTX(pI2CHandle);
 
 	                // Notify the application about transmission completion
 	                I2C_ApplicationEventCallback(pI2CHandle, I2C_EV_TX_CMPLT);
@@ -563,39 +571,38 @@ void RB_I2C_EV_IRQHandling(I2Cx_Handler_t *pI2CHandle)
 	    }
 	}
 
-	temp3 = pI2CHandle->pI2Cx->SR1 & (1 << I2C_SR1_STOPF);
-	// STOPF event
-	// Applicable only for slave
-	if (temp3 && temp1)
+	temp3 = RB_I2C_GetFlagStatus(pI2CHandle->pI2Cx, I2C_FLAG_STOPF);
+	if (temp3 && temp1) // STOPF event (Applicable only for slave)
 	{
 		//STOPF is set
 		//Need to be cleared
-		pI2CHandle->pI2Cx->CR1 |= 0x0; // To clear the STOPF
+		pI2CHandle->pI2Cx->CR1 |= 0x0; // To clear the STOPF (A simple read to
 		I2C_ApplicationEventCallback(pI2CHandle,I2C_EV_STOP);
-
 	}
 
-	temp3 = pI2CHandle->pI2Cx->SR1 & (1 << I2C_SR1_TxE);
+	temp3 = RB_I2C_GetFlagStatus(pI2CHandle->pI2Cx, I2C_FLAG_TxE);
 	// TXE event (TX Buffer is empty) (Applicable for Master)
-	if (temp1 & temp2 & temp3)
+	if (temp1 && temp2 && temp3)
 	{
-		if(pI2CHandle->pI2Cx->SR1 & (1 << I2C_SR2_MSL))
+		if(RB_I2C_GetFlagStatus(pI2CHandle->pI2Cx, I2C_FLAG_MSL)) //Check for Master Mode
 		{
 			//Data TX
 			if(pI2CHandle->TxRxState == I2C_BUSY_TX)
 			{
-				if(pI2CHandle->TxLen > 0)
-				{
-					pI2CHandle->pI2Cx->DR = *(pI2CHandle->pTxBuffer);
-					(pI2CHandle->pTxBuffer)++;
-					pI2CHandle->TxLen--;
-				}
+				I2C_MasterHandleTXEInterrupt(pI2CHandle);
+			}
+		}else
+		{
+			//Device in Slave Mode
+			if(RB_I2C_GetFlagStatus(pI2CHandle->pI2Cx, I2C_FLAG_TRA)) //Check if Slave in TX mode
+			{
+				I2C_ApplicationEventCallback(pI2CHandle,I2C_EV_DATA_REQ);
 			}
 		}
 	}
 
 
-	temp3 = pI2CHandle->pI2Cx->SR1 & (1 << I2C_SR1_RxNE);
+	temp3 = RB_I2C_GetFlagStatus(pI2CHandle->pI2Cx, I2C_FLAG_RxNE);
 	// RXNE event (RX Buffer is Full)
 	if (temp1 & temp2 & temp3)
 	{

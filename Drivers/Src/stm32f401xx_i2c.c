@@ -19,7 +19,9 @@ static void I2C_ExecuteAddressPhaseWrite(I2Cx_t *pI2Cx,uint8_t SlaveAddr);
 static void I2C_ExecuteAddressPhaseRead(I2Cx_t *pI2Cx,uint8_t SlaveAddr);
 static void I2C_ClearADDRStatus(I2Cx_Handler_t* pI2CHandle);
 static void I2C_CloseTX(I2Cx_Handler_t* pI2CHandle);
+static void I2C_CloseRX(I2Cx_Handler_t* pI2CHandle);
 static void I2C_MasterHandleTXEInterrupt(I2Cx_Handler_t *pI2CHandle);
+static void I2C_MasterHandleRXNEInterrupt(I2Cx_Handler_t *pI2CHandle);
 /*
  * Static Functions Definitions
  */
@@ -75,6 +77,26 @@ static void I2C_CloseTX(I2Cx_Handler_t* pI2CHandle){
 	pI2CHandle->pTxBuffer = NULL;
 }
 
+static void I2C_CloseRX(I2Cx_Handler_t* pI2CHandle){
+	//Disable Interrupts
+
+	//Disable ITBUFEN
+	pI2CHandle->pI2Cx->CR2 &= ~(1 << I2C_CR2_ITBUFEN);
+	//Disable ITEVFEN
+	pI2CHandle->pI2Cx->CR2 &= ~(1 << I2C_CR2_ITEVTEN);
+
+	//Initialise Handler Fields
+	pI2CHandle->TxRxState = I2C_READY;
+	pI2CHandle->RxLen = 0;
+	pI2CHandle->RxSize = 0;
+	pI2CHandle->pRxBuffer = NULL;
+
+	if(pI2CHandle->I2C_Config.I2C_ACKControl== I2C_ACK_ENABLE)
+	{
+		RB_I2C_ManageAcking(pI2CHandle->pI2Cx, ENABLE);
+	}
+}
+
 static void I2C_MasterHandleTXEInterrupt(I2Cx_Handler_t *pI2CHandle){
 	if (pI2CHandle->TxLen > 0)
 	{
@@ -84,6 +106,41 @@ static void I2C_MasterHandleTXEInterrupt(I2Cx_Handler_t *pI2CHandle){
 	}
 }
 
+static void I2C_MasterHandleRXNEInterrupt(I2Cx_Handler_t *pI2CHandle){
+    if(pI2CHandle->RxLen == 0 )
+    {
+        //close I2C TX
+
+        //Generate Stop Condition
+        if(pI2CHandle->Sr == I2C_SR_DISABLE)
+            I2C_GenerateStopCondition(pI2CHandle->pI2Cx);
+
+        //2 . Close the I2C rx
+        I2C_CloseRX(pI2CHandle);
+
+        //3. Notify the application
+        I2C_ApplicationEventCallback(pI2CHandle,I2C_EV_RX_CMPLT);
+    }
+
+	if (pI2CHandle->RxSize == 1)
+	{
+		*pI2CHandle->pRxBuffer = pI2CHandle->pI2Cx->DR;
+		pI2CHandle->RxLen--;
+	}
+
+	if (pI2CHandle->RxSize > 1)
+	{
+		if(pI2CHandle->RxLen == 2)
+		{
+			//Clear ACK Bit
+			RB_I2C_ManageAcking(pI2CHandle->pI2Cx, DISABLE);
+		}
+
+		*pI2CHandle->pRxBuffer = pI2CHandle->pI2Cx->DR;
+		pI2CHandle->RxLen--;
+		pI2CHandle->pRxBuffer++;
+	}
+}
 /*
  * I2C Peripheral Clock Control
  */
@@ -500,13 +557,11 @@ void RB_I2C_IRQPriorityConfig(uint8_t IRQNumber, uint32_t Priority){
  *
  * @param[in]         - I2C Peripheral
 
- * @return            -	NONCE
+ * @return            -	NONE
  *
- * @Note              -  Interrupt handling for different I2C events (refer SR1)
+ * @Note              - Interrupt handling for I2C Events
 
  */
-
-
 void RB_I2C_EV_IRQHandling(I2Cx_Handler_t *pI2CHandle)
 {
 
@@ -602,55 +657,126 @@ void RB_I2C_EV_IRQHandling(I2Cx_Handler_t *pI2CHandle)
 	}
 
 
-	temp3 = RB_I2C_GetFlagStatus(pI2CHandle->pI2Cx, I2C_FLAG_RxNE);
-	// RXNE event (RX Buffer is Full)
-	if (temp1 & temp2 & temp3)
-	{
-		if(pI2CHandle->pI2Cx->SR1 & (1 << I2C_SR2_MSL))
-		{
-			//RXNE is set
-			if(pI2CHandle->TxRxState == I2C_BUSY_RX)
-			{
-				if(pI2CHandle->RxSize == 1)
-				{
-					*pI2CHandle->pRxBuffer = pI2CHandle->pI2Cx->DR;
-					pI2CHandle->RxLen --;
-				}
+    temp3 = RB_I2C_GetFlagStatus(pI2CHandle->pI2Cx, I2C_FLAG_RxNE);
 
-				if(pI2CHandle->RxLen > 1)
-				{
-					if(pI2CHandle->RxLen == 2)
-					{
-						//Clear ACK
-						RB_I2C_ManageAcking(pI2CHandle->pI2Cx,DISABLE);
-					}
-
-					*pI2CHandle->pRxBuffer = pI2CHandle->pI2Cx->DR;
-					pI2CHandle->RxLen --;
-					pI2CHandle->pRxBuffer++;
-
-				}
-				if(pI2CHandle->RxLen == 0)
-				{
-					//CLOSE THE I2C RX and Notify Application
-					if(pI2CHandle->Sr == I2C_SR_DISABLE)
-						pI2CHandle->pI2Cx->CR1 |= (1 << I2C_CR1_STOP);
-					I2C_CloseRx();
-					I2C_ApplicationEventCallback(pI2CHandle, I2C_EV_RX_CMPLT);
-
-
-				}
-			}
-		}
-	}
+    // RXNE event (RX Buffer is Full)
+    if (temp1 && temp2 && temp3)
+    {
+        if (RB_I2C_GetFlagStatus(pI2CHandle->pI2Cx, I2C_FLAG_MSL))  // Check if in Master Mode
+        {
+            if (pI2CHandle->TxRxState == I2C_BUSY_RX)
+            {
+                I2C_MasterHandleRXNEInterrupt(pI2CHandle);
+            }
+        }
+        else  // Slave Mode
+        {
+            if (!RB_I2C_GetFlagStatus(pI2CHandle->pI2Cx, I2C_FLAG_TRA)) // Check if receiving
+            {
+                I2C_ApplicationEventCallback(pI2CHandle, I2C_EV_DATA_RCV);
+            }
+        }
+    }
 
 }
+
+
+/*********************************************************************
+  * @fn      		   -RB_I2C_ER_IRQHandling
+  *
+  * @brief             -IRQ Handling for I2C Events
+  *
+  * @param[in]         -I2C Peripheral
+  *
+  * @return            -NONE
+  *
+  * @Note              -Interrupt handling for I2C Errors
+  */
+
+ void RB_I2C_ER_IRQHandling(I2Cx_Handler_t *pI2CHandle)
+ {
+
+     uint32_t temp1,temp2;
+
+     //Know the status of  ITERREN control bit in the CR2
+     temp2 = (pI2CHandle->pI2Cx->CR2) & ( 1 << I2C_CR2_ITERREN);
+
+
+ /***********************Check for Bus error************************************/
+     temp1 = (pI2CHandle->pI2Cx->SR1) & ( 1<< I2C_SR1_BERR);
+     if(temp1  && temp2 )
+     {
+         //This is Bus error
+
+         //Implement the code to clear the buss error flag
+         pI2CHandle->pI2Cx->SR1 &= ~( 1 << I2C_SR1_BERR);
+
+         //Implement the code to notify the application about the error
+        I2C_ApplicationEventCallback(pI2CHandle,I2C_ERROR_BERR);
+     }
+
+ /***********************Check for arbitration lost error************************************/
+     temp1 = (pI2CHandle->pI2Cx->SR1) & ( 1 << I2C_SR1_ARLO );
+     if(temp1  && temp2)
+     {
+         //This is arbitration lost error
+
+         //Implement the code to clear the arbitration lost error flag
+         pI2CHandle->pI2Cx->SR1 &= ~( 1 << I2C_SR1_ARLO);
+
+         //Implement the code to notify the application about the error
+         I2C_ApplicationEventCallback(pI2CHandle,I2C_ERROR_ARLO);
+
+     }
+
+ /***********************Check for ACK failure  error************************************/
+
+     temp1 = (pI2CHandle->pI2Cx->SR1) & ( 1 << I2C_SR1_AF);
+     if(temp1  && temp2)
+     {
+         //This is ACK failure error
+
+         //Implement the code to clear the ACK failure error flag
+         pI2CHandle->pI2Cx->SR1 &= ~( 1 << I2C_SR1_AF);
+
+         //Implement the code to notify the application about the error
+         I2C_ApplicationEventCallback(pI2CHandle,I2C_ERROR_AF);
+     }
+
+ /***********************Check for Overrun/underrun error************************************/
+     temp1 = (pI2CHandle->pI2Cx->SR1) & ( 1 << I2C_SR1_OVR);
+     if(temp1  && temp2)
+     {
+         //This is Overrun/underrun
+
+         //Implement the code to clear the Overrun/underrun error flag
+         pI2CHandle->pI2Cx->SR1 &= ~( 1 << I2C_SR1_OVR);
+
+         //Implement the code to notify the application about the error
+         I2C_ApplicationEventCallback(pI2CHandle,I2C_ERROR_OVR);
+     }
+
+ /***********************Check for Time out error************************************/
+     temp1 = (pI2CHandle->pI2Cx->SR1) & ( 1 << I2C_SR1_TIMEOUT);
+     if(temp1  && temp2)
+     {
+         //This is Time out error
+
+         //Implement the code to clear the Time out error flag
+         pI2CHandle->pI2Cx->SR1 &= ~( 1 << I2C_SR1_TIMEOUT);
+
+         //Implement the code to notify the application about the error
+         I2C_ApplicationEventCallback(pI2CHandle,I2C_ERROR_TIMEOUT);
+     }
+
+ }
+
 /*
  * Others APIs
  */
 
 /********************************************************************
- * @fn				- I2C_PeriphControl
+ * @fn				- RB_I2C_PeriphControl
  *
  * @brief			- Enable/Disable the I2C Peripheral
  *
@@ -661,7 +787,7 @@ void RB_I2C_EV_IRQHandling(I2Cx_Handler_t *pI2CHandle)
  *
  * @note			- The I2C Peripheral is Disabled by default to allow control configuration on the I2C Peripheral
  */
-void I2C_PeriphControl(I2Cx_t *pI2Cx,uint8_t state){
+void RB_I2C_PeriphControl(I2Cx_t *pI2Cx,uint8_t state){
 	if (state == ENABLE)
 	{
 		pI2Cx->CR1 |= (1 << I2C_CR1_PE);

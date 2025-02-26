@@ -587,6 +587,7 @@ void RB_SPI_CloseRx(SPIx_Handler_t *pSPIHandle)
 # STM32F4xx I²C Driver
 ## APIs References
 
+
 ### I²C Initialization
 **Definition :** initialize an I²C peripheral.
 ```c
@@ -619,6 +620,195 @@ void RB_I2C_PeriClockControl(I2Cx_t *pI2Cx, uint8_t State)
 | :------------------- | :--------------- | :-------------------------------------------------- |
 | `pI2Cx`             | `I2Cx_t*`       | **Required**. Pointer to the I²C peripheral (e.g., `I2C3`). |
 | `State`              | `uint8_t`        | **Required**. State to enable (`SET`) or disable (`RESET`) the SPI peripheral clock. |
+
+
+### I²C Master Data Transmission (Poll mode)
+**Definition :** Master Transmit Data (Stored in TxBuffer) (Blocking API)
+```c
+void RB_I2C_MasterTX(I2Cx_Handler_t *pI2CHandle, uint8_t* pTxBuffer, uint32_t length, uint8_t SlaveAddr, uint8_t Sr)
+```
+
+| Parameter   | Type              | Description |
+| :---------- | :---------------- | :-------------------------------------------------- |
+| `pI2CHandle` | `I2Cx_Handler_t*`   | **Required**. Pointer to the I2C handler. |
+| `pTxBuffer`  | `uint8_t*`          | **Required**. Buffer containing the data to be transmitted. |
+| `length`     | `uint32_t`          | **Required**. Length of the message to transmit. |
+| `SlaveAddr`  | `uint8_t`           | **Required**. Address of the slave device. |
+| `Sr`         | `uint8_t`           | **Required**. Specifies whether to send a repeated start condition. |
+ 
+**Note**: This API is a blocking call.
+
+
+### I²C Master Data Reception (Poll mode)
+**Definition :** Master Receive Data and store it in RxBuffer (Blocking API)
+```c
+void RB_I2C_MasterRX(I2Cx_Handler_t *pI2CHandle, uint8_t* pRxBuffer, uint32_t length, uint8_t SlaveAddr, uint8_t Sr)
+```
+
+| Parameter   | Type              | Description |
+| :---------- | :---------------- | :-------------------------------------------------- |
+| `pI2CHandle` | `I2Cx_Handler_t*`   | **Required**. Pointer to the I2C handler. |
+| `pRxBuffer`  | `uint8_t*`          | **Required**. Buffer where the received data will be stored. |
+| `length`     | `uint32_t`          | **Required**. Length of the message to receive. |
+| `SlaveAddr`  | `uint8_t`           | **Required**. Address of the slave device. |
+| `Sr`         | `uint8_t`           | **Required**. Specifies whether to send a repeated start condition. |
+
+**Note**: This API is a blocking call.
+
+
+### I²C Master Data Transmission (Interruption mode)
+**Definition :** Master Transmit Data (Stored in TxBuffer) (Non-Blocking API)
+```c
+uint8_t RB_I2C_MasterTX_IT(I2Cx_Handler_t *pI2CHandle, uint8_t* pTxBuffer, uint32_t length, uint8_t SlaveAddr, uint8_t Sr)
+```
+
+| Parameter   | Type              | Description |
+| :---------- | :---------------- | :-------------------------------------------------- |
+| `pI2CHandle` | `I2Cx_Handler_t*`   | **Required**. Pointer to the I2C handler. |
+| `pTxBuffer`  | `uint8_t*`          | **Required**. Buffer containing the data to be transmitted. |
+| `length`     | `uint32_t`          | **Required**. Length of the message to transmit. |
+| `SlaveAddr`  | `uint8_t`           | **Required**. Address of the slave device. |
+| `Sr`         | `uint8_t`           | **Required**. Specifies whether to send a repeated start condition. |
+
+**Return**: `uint8_t` - State of the transmission.  (Refers to stm32f401xx_i2c.h header file for Tx States)
+
+**Note**: This API is a non-blocking call.
+
+
+### I²C Master Data Reception (Interruption mode)
+**Definition :** Master Receive Data and store it in RxBuffer (Non-Blocking API)
+```c
+uint8_t RB_I2C_MasterRX_IT(I2Cx_Handler_t *pI2CHandle, uint8_t* pRxBuffer, uint32_t length, uint8_t SlaveAddr, uint8_t Sr)
+```
+
+| Parameter   | Type              | Description |
+| :---------- | :---------------- | :-------------------------------------------------- |
+| `pI2CHandle` | `I2Cx_Handler_t*`   | **Required**. Pointer to the I2C handler. |
+| `pRxBuffer`  | `uint8_t*`          | **Required**. Buffer to store the received data. |
+| `length`     | `uint32_t`          | **Required**. Length of the message to receive. |
+| `SlaveAddr`  | `uint8_t`           | **Required**. Address of the slave device. |
+| `Sr`         | `uint8_t`           | **Required**. Specifies whether to send a repeated start condition. |
+
+**Return**: `uint8_t` - State of the reception.  (Refers to stm32f401xx_i2c.h header file for Rx States)
+
+**Note**: This API is also a non-blocking call.
+
+
+### I²C Slave Data Transmission (Poll mode)
+**Definition :** Slave Transmit data in the parameter.
+```c
+void RB_I2C_SlaveTX(I2Cx_t *pI2C, uint8_t data)
+```
+
+| Parameter   | Type           | Description |
+| :---------- | :------------- | :------------------------------------------------- |
+| `pI2C`      | `I2Cx_t*`       | **Required**. Pointer to the I2C peripheral structure. |
+| `data`      | `uint8_t`       | **Required**. Data to transmit. |
+
+
+### I²C Slave Data Reception (Poll mode)
+**Definition :** Slave Receive data as a function's return.
+```c
+uint8_t RB_I2C_SlaveRX(I2Cx_t *pI2C)
+```
+
+| Parameter   | Type           | Description |
+| :---------- | :------------- | :------------------------------------------------- |
+| `pI2C`      | `I2Cx_t*`       | **Required**. Pointer to the I2C peripheral structure. |
+
+**Return**: `uint8_t`  : Returns the received data (1 byte).
+
+
+### I²C Interrupt Request Enabling
+**Definition :** IRQ Enable on CPU (Refers to NVIC Part in Arm CortexM4 RM)
+```c
+void RB_I2C_IRQITConfig(uint8_t IRQNumber, uint8_t state)
+```
+
+| Parameter            | Type             | Description                                         |
+| :------------------- | :--------------- | :-------------------------------------------------- |
+| `IRQNumber`          | `uint8_t`        | **Required**. Interrupt request line (e.g., 6 for EXTI Line 0). |
+| `state`              | `uint8_t`        | **Required**. Enable (`ENABLE`) or Disable (`DISABLE`) the interrupt. |
+
+
+### I²C Interrupt Priority Configuration
+**Definition :** Configure the priority of the IRQ
+```c
+void RB_I2C_IRQPriorityConfig(uint8_t IRQNumber, uint32_t Priority)
+```
+
+| Parameter            | Type             | Description                                         |
+| :------------------- | :--------------- | :-------------------------------------------------- |
+| `IRQNumber`          | `uint8_t`        | **Required**. Interrupt request line (e.g., 6 for EXTI Line 0). |
+| `Priority`           | `uint32_t`       | **Required**. Interrupt priority (value between 0 and 15). |
+
+
+### I²C Events Handling
+**Definition :** Handle IRQ for I²C Events
+```c
+void RB_I2C_EV_IRQHandling(I2Cx_Handler_t *pI2CHandle)
+```
+
+| Parameter   | Type                  | Description                             |
+| :---------- | :-------------------- | :-------------------------------------- |
+| `pI2CHandle`| `I2Cx_Handler_t*`      | **Required**. Pointer to the I2C handler structure. |
+
+**Note**: Interrupt handling for I2C events.
+
+
+### I²C Errors Handling
+**Definition :** Handle IRQ for I²C Errors
+```c
+void RB_I2C_ER_IRQHandling(I2Cx_Handler_t *pI2CHandle)
+```
+
+| Parameter   | Type                  | Description                             |
+| :---------- | :-------------------- | :-------------------------------------- |
+| `pI2CHandle`| `I2Cx_Handler_t*`      | **Required**. Pointer to the I2C handler structure. |
+
+**Note**: Interrupt handling for I2C errors.
+
+
+### I²C Peripheral Enable
+**Definition :** Enable/Disable the I²C Peripheral
+```c
+void RB_I2C_PeriphControl(I2Cx_t *pI2Cx, uint8_t state)
+```
+
+| Parameter   | Type                 | Description                              |
+| :---------- | :------------------- | :--------------------------------------- |
+| `pI2Cx`     | `I2Cx_t*`             | **Required**. Pointer to the I2C peripheral. |
+| `state`     | `uint8_t`             | **Required**. State to enable (`ENABLE`) or disable (`DISABLE`) the I2C peripheral. |
+
+**Note**: The I2C Peripheral is disabled by default to allow configuration of the I2C peripheral before enabling.
+
+
+### I²C Flag Status
+**Definition :** Return the status of specific I²C flag. (Check I2C_SR Register for flags)
+```c
+uint8_t RB_I2C_GetFlagStatus(I2Cx_t *pI2Cx, uint8_t flag)
+```
+
+| Parameter   | Type                 | Description                                                       |
+| :---------- | :------------------- | :---------------------------------------------------------------- |
+| `pI2Cx`     | `I2Cx_t*`             | **Required**. Pointer to the I2C peripheral.                      |
+| `flag`      | `uint8_t`             | **Required**. Desired flag (uses macros in `@I2C_Flags`).         |
+
+**Return**: `uint8_t` : Returns the status of the flag: `FLAG_SET` or `FLAG_RESET`.
+
+
+### Acknowledgment Setting
+**Definition :** Enable or Disable the Acknowledgment
+```c
+void RB_I2C_ManageAcking(I2Cx_t *pI2Cx, uint8_t status)
+```
+
+| Parameter   | Type                 | Description                                                       |
+| :---------- | :------------------- | :---------------------------------------------------------------- |
+| `pI2Cx`     | `I2Cx_t*`             | **Required**. Pointer to the I2C peripheral.                      |
+| `status`    | `uint8_t`             | **Required**. Desired status (`ENABLE` or `DISABLE`).             |
+
+
 
 # Contributing
 Contributions are welcome! If you'd like to report bugs, suggest features, or submit improvements, please open an issue or create a pull request.

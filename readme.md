@@ -1,18 +1,19 @@
 # Clone the Repository  
 If you're interested in exploring the code, you can clone this repository to your STM32CubeIDE workspace using the following command:  
 ```bash
-git clone https://github.com/RayenBof97/stm32f4xx-driver.git  
+git clone https://github.com/RayenBof97/STM32F4xx-Drivers-From-Scratch
 ```
 
 # STM32F4xx GPIO Driver
 
-This repository contains a custom driver library for STM32F4xx microcontrollers, written entirely from scratch as part of my learning journey. It provides basic and modular functions to configure and interact with peripherals, helping me deepen my understanding of embedded systems and microcontroller programming
+This repository contains custom drivers libraries for STM32F4xx microcontrollers, written entirely from scratch as part of my learning journey. It provides basic and modular functions to configure and interact with peripherals, helping me deepen my understanding of embedded systems and microcontroller programming.
+**NOTE :** This project is intended solely for personal learning and to deepen my understanding of STM32 architectures. It is not meant for practical use, especially considering the existence of the HAL library, which is much more efficient than my implementation.
 
 For this, I'm using my Nucleo-F401RE board, and you can find its datasheet on the  [official STM32 website](https://www.st.com/en/evaluation-tools/nucleo-f401re.html) 
 
 ## APIs References
 
-#### GPIO Initialization    
+### GPIO Initialization    
 **Definition :** initialize a specific GPIO Pin.
 ```c
 void RB_GPIO_Init(GPIOx_Handler_t *pGPIOHandle)
@@ -23,7 +24,7 @@ void RB_GPIO_Init(GPIOx_Handler_t *pGPIOHandle)
 | `pGPIOHandle`        | `GPIOx_Handler_t*` | **Required**. Pointer to the GPIO handler structure containing the configuration for the GPIO pin. |
 
 
-#### GPIO Deinitialization
+### GPIO Deinitialization
 **Definition :** Deinitialize a specific GPIO port (reset all registers).
 ```c
 void RB_GPIO_DeInit(GPIO_t *pGPIOx)
@@ -34,7 +35,7 @@ void RB_GPIO_DeInit(GPIO_t *pGPIOx)
 | pGPIOx          | GPIO_t*      | **Required**. Pointer to the GPIO structure. |
 
 
-#### GPIO Clock Control
+### GPIO Clock Control
 **Definition :** This function enable or disable the GPIO peripheral clock.
 ```c
 void RB_GPIO_PeriClockControl(GPIOx_t *pGPIOx, uint8_t State)
@@ -46,7 +47,7 @@ void RB_GPIO_PeriClockControl(GPIOx_t *pGPIOx, uint8_t State)
 | `State`              | `uint8_t`        | **Required**. State to enable (`SET`) or disable (`RESET`) the GPIO peripheral clock. |
 
 
-#### GPIO Pin Data Read
+### GPIO Pin Data Read
 **Definition :** Read the state of a GPIO Pin.
 ```c
 uint8_t RB_GPIO_ReadInputPin(GPIOx_t *pGPIOx, uint8_t PinNumber)
@@ -59,7 +60,7 @@ uint8_t RB_GPIO_ReadInputPin(GPIOx_t *pGPIOx, uint8_t PinNumber)
 **Return :** The state of the pin (0,1)
 
 
-#### GPIO Port Data Read
+### GPIO Port Data Read
 **Definition :** Read the state of a GPIO Port , returned in a 16bit Word (16pins).
 ```c
 uint16_t RB_GPIO_ReadInputPort(GPIO_t *pGPIOx)
@@ -72,7 +73,7 @@ uint16_t RB_GPIO_ReadInputPort(GPIO_t *pGPIOx)
 **Return**: The state of all pins in portX (16Bits Word)
 
 
-#### GPIO Pin Data Write
+### GPIO Pin Data Write
 **Definition :** Write the state into a GPIO Pin.
 ```c
 void RB_GPIO_WriteOutputPin(GPIOx_t *pGPIOx, uint8_t PinNumber, uint8_t value)
@@ -84,7 +85,7 @@ void RB_GPIO_WriteOutputPin(GPIOx_t *pGPIOx, uint8_t PinNumber, uint8_t value)
 | `PinNumber`          | `uint8_t`        | **Required**. GPIO pin number to write to. |
 | `value`              | `uint8_t`        | **Required**. Value to write (either `GPIO_PIN_SET` or `GPIO_PIN_RESET`). |
 
-#### GPIO Port Data Write
+### GPIO Port Data Write
 **Definition :** Write the state of all pins in port (16bit Word).
 ```c
 void RB_GPIO_WriteOutputPort(GPIO_t *pGPIOx, uint16_t value)
@@ -96,7 +97,7 @@ void RB_GPIO_WriteOutputPort(GPIO_t *pGPIOx, uint16_t value)
 | value           | uint16_t     | **Required**. Value to write to the GPIO port (ranging from 0x0000 to 0xFFFF). |
 
 
-#### GPIO Pin Toggle
+### GPIO Pin Toggle
 **Definition :** Toggle a pin (Invert the current state of the GPIO Pin).
 ```c
 void RB_GPIO_TogglePin(GPIOx_t *pGPIOx, uint8_t PinNumber)
@@ -108,7 +109,7 @@ void RB_GPIO_TogglePin(GPIOx_t *pGPIOx, uint8_t PinNumber)
 | `PinNumber`          | `uint8_t`        | **Required**. GPIO pin number to toggle. |
 
 
-#### GPIO Interrupt Request Enabling
+### GPIO Interrupt Request Enabling
 **Definition :** IRQ Enable on CPU (Refers to NVIC Part in Arm CortexM4 RM)
 ```c
 void RB_GPIO_IRQITConfig(uint8_t IRQNumber, uint8_t state)
@@ -120,7 +121,7 @@ void RB_GPIO_IRQITConfig(uint8_t IRQNumber, uint8_t state)
 | `state`              | `uint8_t`        | **Required**. Enable (`ENABLE`) or Disable (`DISABLE`) the interrupt. |
 
 
-#### GPIO Interrupt Priority Configuration
+### GPIO Interrupt Priority Configuration
 **Definition :** Configure the priority of the IRQ
 ```c
 void RB_GPIO_IRQPriorityConfig(uint8_t IRQNumber, uint32_t Priority)
@@ -132,7 +133,7 @@ void RB_GPIO_IRQPriorityConfig(uint8_t IRQNumber, uint32_t Priority)
 | `Priority`           | `uint32_t`       | **Required**. Interrupt priority (value between 0 and 15). |
 
 
-#### GPIO Interrupt Request (IRQ) Handling
+### GPIO Interrupt Request (IRQ) Handling
 **Definition :** Handles the IRQ on GPIO Peripherals
 ```c
 void RB_GPIO_IRQHandling(uint8_t PinNumber)
@@ -286,9 +287,9 @@ void RB_USART_Data_RXIT(USART_Handle_t *pUSARTHandle, uint8_t *pRxBuffer, uint16
 
 #### USART Peripheral Control
 
+
 # Contributing
 Contributions are welcome! If you'd like to report bugs, suggest features, or submit improvements, please open an issue or create a pull request.
-
 
 # License
 This project is licensed under the MIT License. See the LICENSE file for details.

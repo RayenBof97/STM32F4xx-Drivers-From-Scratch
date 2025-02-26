@@ -7,6 +7,7 @@ git clone https://github.com/RayenBof97/STM32F4xx-Drivers-From-Scratch
 # STM32F4xx GPIO Driver
 
 This repository contains custom drivers libraries for STM32F4xx microcontrollers, written entirely from scratch as part of my learning journey. It provides basic and modular functions to configure and interact with peripherals, helping me deepen my understanding of embedded systems and microcontroller programming.
+
 **NOTE :** This project is intended solely for personal learning and to deepen my understanding of STM32 architectures. It is not meant for practical use, especially considering the existence of the HAL library, which is much more efficient than my implementation.
 
 For this, I'm using my Nucleo-F401RE board, and you can find its datasheet on the  [official STM32 website](https://www.st.com/en/evaluation-tools/nucleo-f401re.html) 
@@ -57,6 +58,7 @@ uint8_t RB_GPIO_ReadInputPin(GPIOx_t *pGPIOx, uint8_t PinNumber)
 | :------------------- | :--------------- | :-------------------------------------------------- |
 | `pGPIOx`             | `GPIOx_t*`       | **Required**. Pointer to the GPIO port (e.g., `GPIOA`). |
 | `PinNumber`          | `uint8_t`        | **Required**. GPIO pin number to read. |
+
 **Return :** The state of the pin (0,1)
 
 
@@ -143,7 +145,7 @@ void RB_GPIO_IRQHandling(uint8_t PinNumber)
 | :-------------- | :----------- | :-------------------------------------------------- |
 | PinNumber       | uint8_t      | **Required**. The GPIO pin number for which the IRQ is being handled. |
 
----
+
 
 ## Usage Example
 
@@ -199,9 +201,8 @@ int main() {
 # STM32F4xx UART Driver
 ## API Reference
 
-
-#### USART Initialization
-
+### USART Initialization
+**Definition :** initialize an USART peripheral.
 ```c
 void RB_USART_Init(USARTx_Handler_t *pUSARTHandle)
 ```
@@ -210,8 +211,20 @@ void RB_USART_Init(USARTx_Handler_t *pUSARTHandle)
 | :------------------- | :--------------- | :-------------------------------------------------- |
 | `pUSARTHandle`        | `USARTx_Handler_t*` | **Required**. Pointer to the USART handler structure containing the configuration for the USART peripheral. |
 
-#### USART Clock Control
 
+### USART Deinitialization
+**Definition :** Deinitialize an USART peripheral. (Reset all USART Registers)
+```c
+void RB_USART_DeInit(USART_Handle_t *pUSARTHandle)
+```
+
+| Parameter       | Type           | Description |
+| :-------------- | :------------- | :-------------------------------------------------- |
+| pUSARTHandle    | USART_Handle_t* | **Required**. Pointer to the USART handle structure. |
+
+
+### USART Clock Control
+**Definition :** Enable or disable the clock on the USART peripheral
 ```c
 void RB_USART_PeriClockControl(USARTx_t *pUSARTx, uint8_t State)
 ```
@@ -221,21 +234,12 @@ void RB_USART_PeriClockControl(USARTx_t *pUSARTx, uint8_t State)
 | `pUSARTx`             | `USARTx_t*`       | **Required**. Pointer to the USART peripheral (e.g., `USART1`). |
 | `State`              | `uint8_t`        | **Required**. State to enable (`SET`) or disable (`RESET`) the USART peripheral clock. |
 
-#### USART Initialization
 
-```c
-void RB_USART_DeInit(USARTx_t *pUSARTx)
-```
-
-| Parameter            | Type             | Description                                         |
-| :------------------- | :--------------- | :-------------------------------------------------- |
-| `pUSARTx`        | `USARTx_t*` | **Required**. Pointer to the USART peripheral structure (e.g., `USART1`). |
-
-#### USART Data Transmission (Poll Mode)
+### USART Data Transmission (Poll Mode)
+**Definition :** Transmit the data (Stored in a TxBuffer) (Blocking API)
 ```c
 void RB_USART_Data_TX(USART_t *pUSARTx, uint8_t *pTxBuffer, uint16_t length)
 ```
-
 | Parameter   | Type         | Description |
 | :---------- | :----------- | :-------------------------------------------------- |
 | pUSARTx    | USART_t*    | **Required**. Pointer to the USART structure. |
@@ -244,7 +248,9 @@ void RB_USART_Data_TX(USART_t *pUSARTx, uint8_t *pTxBuffer, uint16_t length)
 
 **Note**: This API is a blocking call (polling mode).  
 
-#### USART Data Reception (Poll Mode)
+
+### USART Data Reception (Poll Mode)
+**Definition :** Receive the data and store it in RxBuffer (Blocking API)
 ```c
 void RB_USART_Data_RX(USART_t *pUSARTx, uint8_t *pRxBuffer, uint16_t length)
 ```
@@ -257,7 +263,9 @@ void RB_USART_Data_RX(USART_t *pUSARTx, uint8_t *pRxBuffer, uint16_t length)
 
 **Note**: This API is also a blocking call (polling mode).
 
-#### USART Data Transmission (Interruption mode)
+
+### USART Data Transmission (Interruption mode)
+**Definition :** Transmit the data (Stored in a TxBuffer) (Non-Blocking API)
 ```c
 void RB_USART_Data_TXIT(USART_Handle_t *pUSARTHandle, uint8_t *pTxBuffer, uint16_t length)
 ```
@@ -271,7 +279,8 @@ void RB_USART_Data_TXIT(USART_Handle_t *pUSARTHandle, uint8_t *pTxBuffer, uint16
 **Return**: The state of Tx (Check the states in stm32f401xx_usart.h header file).
 **Note**: This API is a non-blocking call (interrupt mode).
 
-#### USART Data Reception (Interruption mode)
+### USART Data Reception (Interruption mode)
+**Definition :** Receive the data and store it in RxBuffer (Non-Blocking API)
 ```c
 void RB_USART_Data_RXIT(USART_Handle_t *pUSARTHandle, uint8_t *pRxBuffer, uint16_t length)
 ```
@@ -285,8 +294,94 @@ void RB_USART_Data_RXIT(USART_Handle_t *pUSARTHandle, uint8_t *pRxBuffer, uint16
 **Return**: The state of Rx (Check the states in stm32f401xx_usart.h header file).
 **Note**: This API is also a non-blocking call (interrupt mode).
 
-#### USART Peripheral Control
 
+### USART Interrupt Request Enabling
+**Definition :** IRQ Enable on CPU (Refers to NVIC Part in Arm CortexM4 RM)
+```c
+void RB_USART_IRQITConfig(uint8_t IRQNumber, uint8_t state)
+```
+
+| Parameter            | Type             | Description                                         |
+| :------------------- | :--------------- | :-------------------------------------------------- |
+| `IRQNumber`          | `uint8_t`        | **Required**. Interrupt request line (e.g., 6 for EXTI Line 0). |
+| `state`              | `uint8_t`        | **Required**. Enable (`ENABLE`) or Disable (`DISABLE`) the interrupt. |
+
+
+### USART Interrupt Priority Configuration
+**Definition :** Configure the priority of the IRQ
+```c
+void RB_USART_IRQPriorityConfig(uint8_t IRQNumber, uint32_t Priority)
+```
+
+| Parameter            | Type             | Description                                         |
+| :------------------- | :--------------- | :-------------------------------------------------- |
+| `IRQNumber`          | `uint8_t`        | **Required**. Interrupt request line (e.g., 6 for EXTI Line 0). |
+| `Priority`           | `uint32_t`       | **Required**. Interrupt priority (value between 0 and 15). |
+
+
+### USART Interrupt Request (IRQ) Handling
+**Definition :** Handles the IRQ on USART Peripherals
+```c
+void RB_USART_IRQHandling(USART_Handle_t *pUSARTHandle)
+```
+
+| Parameter       | Type           | Description |
+| :-------------- | :------------- | :-------------------------------------------------- |
+| pUSARTHandle    | USART_Handle_t* | **Required**. Pointer to a USART handle structure containing the USART peripheral and its configuration. |
+
+
+### USART Peripheral Enable
+**Definition :** Enable/Disable the USART Peripheral
+```c
+void USART_PeriphControl(USART_t *pUSARTx, uint8_t state)
+```
+
+| Parameter   | Type      | Description |
+| :---------- | :-------- | :-------------------------------------------------- |
+| pUSARTx     | USART_t*  | **Required**. Pointer to the USART peripheral. |
+| state       | uint8_t   | **Required**. State of the peripheral (`ENABLE` or `DISABLE`). |
+
+**Note**: The USART peripheral is disabled by default to allow control configuration before enabling it.
+
+
+### USART Flag Status
+**Definition :** Return the status of specific USART flag. (Check USART_SR Register for flags)
+```c
+uint8_t RB_USART_GetFlagStatus(USART_t *pUSARTx, uint32_t flag)
+```
+
+| Parameter   | Type      | Description |
+| :---------- | :-------- | :-------------------------------------------------- |
+| pUSARTx     | USART_t*  | **Required**. Pointer to the USART peripheral. |
+| flag        | uint32_t  | **Required**. Desired flag (use the bit position in the `SPI_SR` register). |
+
+**Return**: Status of the flag (FLAG_SET or FLAG_RESET).  
+
+
+### USART Clear Flag
+**Definition :** Clear a specific USART Flag
+```c
+void RB_USART_ClearFlag(USART_t *pUSARTx, uint32_t flag)
+```
+
+| Parameter   | Type      | Description |
+| :---------- | :-------- | :-------------------------------------------------- |
+| pUSARTx     | USART_t*  | **Required**. Pointer to the USART peripheral. |
+| flag        | uint32_t  | **Required**. Desired flag (use the bit position in the `SPI_SR` register). |
+
+### USART Event Callback Function 
+**Definition :** This is a weakly defined callback function that the user can override to handle USART application events. The function is called when a specific USART event occurs, such as transmission complete, reception complete, or error detection.
+```c
+__weak void USART_ApplicationEventCallback(USARTx_Handler_t *pUSARTHandle, uint8_t AppEv)
+```
+
+| Parameter      | Type                 | Description |
+| :------------ | :------------------- | :-------------------------------------------------- |
+| pUSARTHandle  | USARTx_Handler_t*     | **Required**. Pointer to the USART handle structure. |
+| AppEv         | uint8_t               | **Required**. Application event identifier. |
+
+---
+# SPI Driver
 
 # Contributing
 Contributions are welcome! If you'd like to report bugs, suggest features, or submit improvements, please open an issue or create a pull request.

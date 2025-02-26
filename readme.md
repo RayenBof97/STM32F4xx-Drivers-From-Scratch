@@ -28,12 +28,12 @@ void RB_GPIO_Init(GPIOx_Handler_t *pGPIOHandle)
 ### GPIO Deinitialization
 **Definition :** Deinitialize a specific GPIO port (reset all registers).
 ```c
-void RB_GPIO_DeInit(GPIO_t *pGPIOx)
+void RB_GPIO_DeInit(GPIOx_t *pGPIOx)
 ```
 
 | Parameter       | Type         | Description |
 | :-------------- | :----------- | :-------------------------------------------------- |
-| pGPIOx          | GPIO_t*      | **Required**. Pointer to the GPIO structure. |
+| `pGPIOx`          | `GPIOx_t*`      | **Required**. Pointer to the GPIO structure. |
 
 
 ### GPIO Clock Control
@@ -65,12 +65,12 @@ uint8_t RB_GPIO_ReadInputPin(GPIOx_t *pGPIOx, uint8_t PinNumber)
 ### GPIO Port Data Read
 **Definition :** Read the state of a GPIO Port , returned in a 16bit Word (16pins).
 ```c
-uint16_t RB_GPIO_ReadInputPort(GPIO_t *pGPIOx)
+uint16_t RB_GPIO_ReadInputPort(GPIOx_t *pGPIOx)
 ```
 
 | Parameter       | Type         | Description |
 | :-------------- | :----------- | :-------------------------------------------------- |
-| pGPIOx          | GPIO_t*      | **Required**. Pointer to the GPIO structure. |
+| `pGPIOx`          | `GPIOx_t*`      | **Required**. Pointer to the GPIO structure. |
 
 **Return**: The state of all pins in portX (16Bits Word)
 
@@ -87,16 +87,17 @@ void RB_GPIO_WriteOutputPin(GPIOx_t *pGPIOx, uint8_t PinNumber, uint8_t value)
 | `PinNumber`          | `uint8_t`        | **Required**. GPIO pin number to write to. |
 | `value`              | `uint8_t`        | **Required**. Value to write (either `GPIO_PIN_SET` or `GPIO_PIN_RESET`). |
 
+
 ### GPIO Port Data Write
 **Definition :** Write the state of all pins in port (16bit Word).
 ```c
-void RB_GPIO_WriteOutputPort(GPIO_t *pGPIOx, uint16_t value)
+void RB_GPIO_WriteOutputPort(GPIOx_t *pGPIOx, uint16_t value)
 ```
 
 | Parameter       | Type         | Description |
 | :-------------- | :----------- | :-------------------------------------------------- |
-| pGPIOx          | GPIO_t*      | **Required**. Pointer to the GPIO structure. |
-| value           | uint16_t     | **Required**. Value to write to the GPIO port (ranging from 0x0000 to 0xFFFF). |
+| `pGPIOx`          | `PIOx_t*`      | **Required**. Pointer to the GPIO structure. |
+| `value`           | `uint16_t`     | **Required**. Value to write to the GPIO port (ranging from 0x0000 to 0xFFFF). |
 
 
 ### GPIO Pin Toggle
@@ -143,7 +144,7 @@ void RB_GPIO_IRQHandling(uint8_t PinNumber)
 
 | Parameter       | Type         | Description |
 | :-------------- | :----------- | :-------------------------------------------------- |
-| PinNumber       | uint8_t      | **Required**. The GPIO pin number for which the IRQ is being handled. |
+| `PinNumber`       | `uint8_t`      | **Required**. The GPIO pin number for which the IRQ is being handled. |
 
 
 
@@ -199,7 +200,7 @@ int main() {
 ```
 ---
 # STM32F4xx UART Driver
-## API Reference
+## APIs References
 
 ### USART Initialization
 **Definition :** initialize an USART peripheral.
@@ -215,12 +216,12 @@ void RB_USART_Init(USARTx_Handler_t *pUSARTHandle)
 ### USART Deinitialization
 **Definition :** Deinitialize an USART peripheral. (Reset all USART Registers)
 ```c
-void RB_USART_DeInit(USART_Handle_t *pUSARTHandle)
+void RB_USART_DeInit(USARTx_Handler_t *pUSARTHandle)
 ```
 
 | Parameter       | Type           | Description |
 | :-------------- | :------------- | :-------------------------------------------------- |
-| pUSARTHandle    | USART_Handle_t* | **Required**. Pointer to the USART handle structure. |
+| `pUSARTHandle`    | `USARTx_Handler_t*` | **Required**. Pointer to the USART handle structure. |
 
 
 ### USART Clock Control
@@ -238,13 +239,13 @@ void RB_USART_PeriClockControl(USARTx_t *pUSARTx, uint8_t State)
 ### USART Data Transmission (Poll Mode)
 **Definition :** Transmit the data (Stored in a TxBuffer) (Blocking API)
 ```c
-void RB_USART_Data_TX(USART_t *pUSARTx, uint8_t *pTxBuffer, uint16_t length)
+void RB_USART_Data_TX(USARTx_t *pUSARTx, uint8_t *pTxBuffer, uint16_t length)
 ```
 | Parameter   | Type         | Description |
 | :---------- | :----------- | :-------------------------------------------------- |
-| pUSARTx    | USART_t*    | **Required**. Pointer to the USART structure. |
-| pTxBuffer  | uint8_t*    | **Required**. Buffer containing the data to be transmitted. |
-| length     | uint16_t    | **Required**. Length of the message to transmit. |
+| `pUSARTx`    | `USARTx_t*`    | **Required**. Pointer to the USART structure. |
+| `pTxBuffer`  | `uint8_t*`    | **Required**. Buffer containing the data to be transmitted. |
+| `length`     | `uint16_t`    | **Required**. Length of the message to transmit. |
 
 **Note**: This API is a blocking call (polling mode).  
 
@@ -252,14 +253,14 @@ void RB_USART_Data_TX(USART_t *pUSARTx, uint8_t *pTxBuffer, uint16_t length)
 ### USART Data Reception (Poll Mode)
 **Definition :** Receive the data and store it in RxBuffer (Blocking API)
 ```c
-void RB_USART_Data_RX(USART_t *pUSARTx, uint8_t *pRxBuffer, uint16_t length)
+void RB_USART_Data_RX(USARTx_t *pUSARTx, uint8_t *pRxBuffer, uint16_t length)
 ```
 
 | Parameter   | Type         | Description |
 | :---------- | :----------- | :-------------------------------------------------- |
-| pUSARTx     | USART_t*     | **Required**. Pointer to the USART structure. |
-| pRxBuffer   | uint8_t*     | **Required**. Buffer to store the received data. |
-| length      | uint16_t     | **Required**. Length of the message to be received. |
+| `pUSARTx`     | `USARTx_t*`     | **Required**. Pointer to the USART structure. |
+| `pRxBuffer`   | `uint8_t*`     | **Required**. Buffer to store the received data. |
+| `length`      | `uint16_t`     | **Required**. Length of the message to be received. |
 
 **Note**: This API is also a blocking call (polling mode).
 
@@ -267,29 +268,30 @@ void RB_USART_Data_RX(USART_t *pUSARTx, uint8_t *pRxBuffer, uint16_t length)
 ### USART Data Transmission (Interruption mode)
 **Definition :** Transmit the data (Stored in a TxBuffer) (Non-Blocking API)
 ```c
-void RB_USART_Data_TXIT(USART_Handle_t *pUSARTHandle, uint8_t *pTxBuffer, uint16_t length)
+void RB_USART_Data_TXIT(USARTx_Handler_t *pUSARTHandle, uint8_t *pTxBuffer, uint16_t length)
 ```
 
 | Parameter       | Type           | Description |
 | :-------------- | :------------- | :-------------------------------------------------- |
-| pUSARTHandle    | USART_Handle_t* | **Required**. Pointer to the USART handle structure. |
-| pTxBuffer       | uint8_t*       | **Required**. Buffer containing the data to be transferred. |
-| length          | uint16_t       | **Required**. Length of the message to be transferred. |
+| `pUSARTHandle`    | `USARTx_Handler_t*` | **Required**. Pointer to the USART handle structure. |
+| `pTxBuffer`       | `uint8_t*`       | **Required**. Buffer containing the data to be transferred. |
+| `length`          | `uint16_t`       | **Required**. Length of the message to be transferred. |
 
 **Return**: The state of Tx (Check the states in stm32f401xx_usart.h header file).
 **Note**: This API is a non-blocking call (interrupt mode).
 
+
 ### USART Data Reception (Interruption mode)
 **Definition :** Receive the data and store it in RxBuffer (Non-Blocking API)
 ```c
-void RB_USART_Data_RXIT(USART_Handle_t *pUSARTHandle, uint8_t *pRxBuffer, uint16_t length)
+void RB_USART_Data_RXIT(USARTx_Handler_t *pUSARTHandle, uint8_t *pRxBuffer, uint16_t length)
 ```
 
 | Parameter       | Type           | Description |
 | :-------------- | :------------- | :-------------------------------------------------- |
-| pUSARTHandle    | USART_Handle_t* | **Required**. Pointer to the USART handle structure. |
-| pRxBuffer       | uint8_t*       | **Required**. Buffer to store the received data. |
-| length          | uint16_t       | **Required**. Length of the message to be received. |
+| `pUSARTHandle`    | `USARTx_Handler_t*` | **Required**. Pointer to the USART handle structure. |
+| `pRxBuffer`       | `uint8_t*`       | **Required**. Buffer to store the received data. |
+| `length`          | `uint16_t`       | **Required**. Length of the message to be received. |
 
 **Return**: The state of Rx (Check the states in stm32f401xx_usart.h header file).
 **Note**: This API is also a non-blocking call (interrupt mode).
@@ -322,24 +324,24 @@ void RB_USART_IRQPriorityConfig(uint8_t IRQNumber, uint32_t Priority)
 ### USART Interrupt Request (IRQ) Handling
 **Definition :** Handles the IRQ on USART Peripherals
 ```c
-void RB_USART_IRQHandling(USART_Handle_t *pUSARTHandle)
+void RB_USART_IRQHandling(USARTx_Handler_t *pUSARTHandle)
 ```
 
 | Parameter       | Type           | Description |
 | :-------------- | :------------- | :-------------------------------------------------- |
-| pUSARTHandle    | USART_Handle_t* | **Required**. Pointer to a USART handle structure containing the USART peripheral and its configuration. |
+| `pUSARTHandle`    | `USARTx_Handler_t*` | **Required**. Pointer to a USART handle structure containing the USART peripheral and its configuration. |
 
 
 ### USART Peripheral Enable
 **Definition :** Enable/Disable the USART Peripheral
 ```c
-void USART_PeriphControl(USART_t *pUSARTx, uint8_t state)
+void USART_PeriphControl(USARTx_t *pUSARTx, uint8_t state)
 ```
 
 | Parameter   | Type      | Description |
 | :---------- | :-------- | :-------------------------------------------------- |
-| pUSARTx     | USART_t*  | **Required**. Pointer to the USART peripheral. |
-| state       | uint8_t   | **Required**. State of the peripheral (`ENABLE` or `DISABLE`). |
+| `pUSARTx`     | `USARTx_t*`  | **Required**. Pointer to the USART peripheral. |
+| `state`       | `uint8_t`   | **Required**. State of the peripheral (`ENABLE` or `DISABLE`). |
 
 **Note**: The USART peripheral is disabled by default to allow control configuration before enabling it.
 
@@ -347,13 +349,13 @@ void USART_PeriphControl(USART_t *pUSARTx, uint8_t state)
 ### USART Flag Status
 **Definition :** Return the status of specific USART flag. (Check USART_SR Register for flags)
 ```c
-uint8_t RB_USART_GetFlagStatus(USART_t *pUSARTx, uint32_t flag)
+uint8_t RB_USART_GetFlagStatus(USARTx_t *pUSARTx, uint32_t flag)
 ```
 
 | Parameter   | Type      | Description |
 | :---------- | :-------- | :-------------------------------------------------- |
-| pUSARTx     | USART_t*  | **Required**. Pointer to the USART peripheral. |
-| flag        | uint32_t  | **Required**. Desired flag (use the bit position in the `SPI_SR` register). |
+| `pUSARTx`     | `USARTx_t*`  | **Required**. Pointer to the USART peripheral. |
+| `flag`        | `uint32_t`  | **Required**. Desired flag (use the bit position in the `SPI_SR` register). |
 
 **Return**: Status of the flag (FLAG_SET or FLAG_RESET).  
 
@@ -361,13 +363,13 @@ uint8_t RB_USART_GetFlagStatus(USART_t *pUSARTx, uint32_t flag)
 ### USART Clear Flag
 **Definition :** Clear a specific USART Flag
 ```c
-void RB_USART_ClearFlag(USART_t *pUSARTx, uint32_t flag)
+void RB_USART_ClearFlag(USARTx_t *pUSARTx, uint32_t flag)
 ```
 
 | Parameter   | Type      | Description |
 | :---------- | :-------- | :-------------------------------------------------- |
-| pUSARTx     | USART_t*  | **Required**. Pointer to the USART peripheral. |
-| flag        | uint32_t  | **Required**. Desired flag (use the bit position in the `SPI_SR` register). |
+| `pUSARTx`     | `USARTx_t*`  | **Required**. Pointer to the USART peripheral. |
+| `flag`        | `uint32_t`  | **Required**. Desired flag (use the bit position in the `SPI_SR` register). |
 
 ### USART Event Callback Function 
 **Definition :** This is a weakly defined callback function that the user can override to handle USART application events. The function is called when a specific USART event occurs, such as transmission complete, reception complete, or error detection.
@@ -377,11 +379,246 @@ __weak void USART_ApplicationEventCallback(USARTx_Handler_t *pUSARTHandle, uint8
 
 | Parameter      | Type                 | Description |
 | :------------ | :------------------- | :-------------------------------------------------- |
-| pUSARTHandle  | USARTx_Handler_t*     | **Required**. Pointer to the USART handle structure. |
-| AppEv         | uint8_t               | **Required**. Application event identifier. |
+| `pUSARTHandle` | `USARTx_Handler_t*`     | **Required**. Pointer to the USART handle structure. |
+| `AppEv`         | `uint8_t`              | **Required**. Application event identifier. |
 
 ---
-# SPI Driver
+# STM32F4xx SPI Driver
+## APIs References
+
+### SPI Initialization
+**Definition :** initialize an SPI peripheral.
+```c
+void RB_SPI_Init(SPIx_Handler_t *pSPIHandle)
+```
+
+| Parameter            | Type             | Description                                         |
+| :------------------- | :--------------- | :-------------------------------------------------- |
+| `pSPIHandle`        | `SPIx_Handler_t*` | **Required**. Pointer to the SPI handler structure containing the configuration for the SPI peripheral. |
+
+
+### SPI Deinitialization
+**Definition :** Deinitialize an SPI peripheral. (Reset all SPI Registers)
+```c
+void RB_SPI_DeInit(SPIx_Handler_t *pSPIHandle)
+```
+
+| Parameter       | Type           | Description |
+| :-------------- | :------------- | :-------------------------------------------------- |
+| `pSPIHandle`    | `SPIx_Handler_t*` | **Required**. Pointer to the SPI handle structure. |
+
+
+### SPI Clock Control
+**Definition :** Enable or disable the clock on the SPI peripheral
+```c
+void RB_SPI_PeriClockControl(SPIx_t *pSPIx, uint8_t State)
+```
+
+| Parameter            | Type             | Description                                         |
+| :------------------- | :--------------- | :-------------------------------------------------- |
+| `pSPIx`             | `SPIx_t*`       | **Required**. Pointer to the SPI peripheral (e.g., `SPI1`). |
+| `State`              | `uint8_t`        | **Required**. State to enable (`SET`) or disable (`RESET`) the SPI peripheral clock. |
+
+
+### SPI Data Transmission (Poll Mode)
+**Definition :** Transmit the data (Stored in a TxBuffer) (Blocking API)
+```c
+void RB_SPI_Data_TX(SPIx_t *pSPIx, uint8_t *pTxBuffer, uint16_t length)
+```
+
+| Parameter   | Type      | Description |
+| :---------- | :-------- | :-------------------------------------------------- |
+| `pSPIx`       | `SPIx_t*`    | **Required**. Pointer to the SPI peripheral. |
+| `pTxBuffer`   | `uint8_t*`  | **Required**. Buffer containing the data to be transmitted. |
+| `length`      | `uint16_t`  | **Required**. Length of the message to transmit. |
+
+**Note**: This API is a blocking call (polling mode).
+
+
+### SPI Data Reception (Poll Mode)
+**Definition :** Receive the data and store it in  RxBuffer (Blocking API)
+```c
+void RB_SPI_Data_RX(SPIx_t *pSPIx, uint8_t *pRxBuffer, uint16_t length)
+```
+
+| Parameter   | Type      | Description |
+| :---------- | :-------- | :-------------------------------------------------- |
+| `pSPIx`       | `SPIx_t*`    | **Required**. Pointer to the SPI peripheral. |
+| `pRxBuffer`   | `uint8_t*`  | **Required**. Buffer to store the received data. |
+| `length`      | `uint16_t`  | **Required**. Length of the message to receive. |
+
+**Note**: This API is a blocking call (polling mode).
+
+
+### SPI Data Transmission (Interruption mode)
+**Definition :** Transmit the data (Stored in a TxBuffer) (Non-Blocking API)
+```c
+uint8_t RB_SPI_Data_TXIT(SPIx_Handler_t *pSPIHandle, uint8_t *pTxBuffer, uint16_t length)
+```
+
+| Parameter    | Type            | Description |
+| :----------- | :-------------- | :-------------------------------------------------- |
+| `pSPIHandle`  | `SPIx_Handler_t*`  | **Required**. Pointer to the SPI handle structure. |
+|`pTxBuffer`   | `uint8_t*`        | **Required**. Buffer containing the data to be transmitted. |
+| `length`      | `uint16_t`        | **Required**. Length of the message to transmit. |
+
+**Return**: Returns the state of the transmission. (Refer to stm32f401xx_spi.h header file for the states)
+
+**Note**: This API is a non-blocking call (interrupt mode).
+
+
+### SPI Data Reception (Interruption Mode)
+**Definition :** Receive the data and store it in  RxBuffer (Non-Blocking API)
+```c
+uint8_t RB_SPI_Data_RXIT(SPIx_Handler_t *pSPIHandle, uint8_t *pRxBuffer, uint16_t length)
+```
+
+| Parameter    | Type            | Description |
+| :----------- | :-------------- | :-------------------------------------------------- |
+| `pSPIHandle`  | `SPIx_Handler_t*`  | **Required**. Pointer to the SPI handle structure. |
+| `pRxBuffer`   | `uint8_t*`        | **Required**. Buffer to store the received data. |
+| `length`      | `uint16_t`        | **Required**. Length of the message to receive. |
+
+**Return**: Returns the state of the reception.  
+
+**Note**: This API is a non-blocking call (interrupt mode).
+
+
+### SPI Interrupt Request Enabling
+**Definition :** IRQ Enable on CPU (Refers to NVIC Part in Arm CortexM4 RM)
+```c
+void RB_SPI_IRQITConfig(uint8_t IRQNumber, uint8_t state)
+```
+
+| Parameter            | Type             | Description                                         |
+| :------------------- | :--------------- | :-------------------------------------------------- |
+| `IRQNumber`          | `uint8_t`        | **Required**. Interrupt request line (e.g., 6 for EXTI Line 0). |
+| `state`              | `uint8_t`        | **Required**. Enable (`ENABLE`) or Disable (`DISABLE`) the interrupt. |
+
+
+### SPI Interrupt Priority Configuration
+**Definition :** Configure the priority of the IRQ
+```c
+void RB_SPI_IRQPriorityConfig(uint8_t IRQNumber, uint32_t Priority)
+```
+
+| Parameter            | Type             | Description                                         |
+| :------------------- | :--------------- | :-------------------------------------------------- |
+| `IRQNumber`          | `uint8_t`        | **Required**. Interrupt request line (e.g., 6 for EXTI Line 0). |
+| `Priority`           | `uint32_t`       | **Required**. Interrupt priority (value between 0 and 15). |
+
+
+### SPI Interrupt Request (IRQ) Handling
+**Definition :** Handles the IRQ on SPI Peripherals
+```c
+void RB_SPI_IRQHandling(SPIx_Handler_t *pSPIHandle)
+```
+
+| Parameter       | Type           | Description |
+| :-------------- | :------------- | :-------------------------------------------------- |
+| `pSPIHandle`    | `SPIx_Handler_t*` | **Required**. Pointer to a SPI handle structure containing the SPI peripheral and its configuration. |
+
+
+### USART Peripheral Enable
+**Definition :** Enable/Disable the SPI Peripheral
+```c
+void SPI_PeriphControl(SPIx_t *pSPIx, uint8_t state)
+```
+
+| Parameter   | Type      | Description |
+| :---------- | :-------- | :-------------------------------------------------- |
+| `pSPIx`     | `SPIx_t*`  | **Required**. Pointer to the SPI peripheral. |
+| `state`       | `uint8_t`   | **Required**. State of the peripheral (`ENABLE` or `DISABLE`). |
+
+**Note**: The SPI peripheral is disabled by default to allow control configuration before enabling it.
+
+
+### Software Slave Management
+**Definition :** Enable/Disable the SSI in NSS Software mode
+```c
+void SPI_SSI_Config(SPIx_t *pSPIx, uint8_t state)
+```
+
+| Parameter  | Type      | Description |
+| :--------- | :-------- | :-------------------------------------------------- |
+| `pSPIx`     | `SPIx_t*`  | **Required**. Pointer to the SPI peripheral. |
+| `state`     | `uint8_t`  | **Required**. State (ENABLE or DISABLE). |
+
+**Note**: This configuration is necessary when using the SPI peripheral in master mode (Set SSI to 1).
+
+
+### SPI Flag Status
+**Definition :** Return the status of specific SPI flag. (Check SPI_SR Register for flags)
+```c
+uint8_t RB_SPI_GetFlagStatus(SPIx_t *pSPIx, uint8_t flag)
+```
+
+| Parameter  | Type      | Description |
+| :--------- | :-------- | :-------------------------------------------------- |
+| `pSPIx`     | `SPIx_t*`  | **Required**. Pointer to the SPI peripheral. |
+| `flag`      | `uint8_t`  | **Required**. Desired flag (Use the bit position in the SPI_SR register). |
+
+**Return**: Status of the flag (FLAG_SET or FLAG_RESET).  
+
+
+### Close SPI Transmission
+**Definition :** This API close the SPI Data Transmission
+```c
+void RB_SPI_CloseTx(SPIx_Handler_t *pSPIHandle)
+```
+
+| Parameter   | Type             | Description |
+| :---------- | :--------------- | :-------------------------------------------------- |
+| `pSPIHandle` | `SPIx_Handler_t*` | **Required**. Pointer to the SPI handler. |
+
+
+### Close SPI Reception
+**Definition :** This API close the SPI Data Reception
+```c
+void RB_SPI_CloseRx(SPIx_Handler_t *pSPIHandle)
+```
+
+| Parameter   | Type             | Description |
+| :---------- | :--------------- | :-------------------------------------------------- |
+| `pSPIHandle` | `SPIx_Handler_t*` | **Required**. Pointer to the SPI handler. |
+
+
+---
+# STM32F4xx I²C Driver
+## APIs References
+
+### I²C Initialization
+**Definition :** initialize an I²C peripheral.
+```c
+void RB_I2C_Init(I2Cx_Handler_t *pI2CHandle)
+```
+
+| Parameter            | Type             | Description                                         |
+| :------------------- | :--------------- | :-------------------------------------------------- |
+| `pI2CHandle`        | `I2Cx_Handler_t*` | **Required**. Pointer to the I²C handler structure containing the configuration for the I²C peripheral. |
+
+
+### I²C Deinitialization
+**Definition :** Deinitialize an I²C peripheral. (Reset all I²C Registers)
+```c
+void RB_I2C_DeInit(I2Cx_Handler_t *pI2CHandle)
+```
+
+| Parameter       | Type           | Description |
+| :-------------- | :------------- | :-------------------------------------------------- |
+| `pI2CHandle`    | `I2Cx_Handler_t*` | **Required**. Pointer to the I²C handle structure. |
+
+
+### I²C Clock Control
+**Definition :** Enable or disable the clock on the I²C peripheral
+```c
+void RB_I2C_PeriClockControl(I2Cx_t *pI2Cx, uint8_t State)
+```
+
+| Parameter            | Type             | Description                                         |
+| :------------------- | :--------------- | :-------------------------------------------------- |
+| `pI2Cx`             | `I2Cx_t*`       | **Required**. Pointer to the I²C peripheral (e.g., `I2C3`). |
+| `State`              | `uint8_t`        | **Required**. State to enable (`SET`) or disable (`RESET`) the SPI peripheral clock. |
 
 # Contributing
 Contributions are welcome! If you'd like to report bugs, suggest features, or submit improvements, please open an issue or create a pull request.

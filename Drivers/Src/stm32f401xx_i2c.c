@@ -487,6 +487,36 @@ uint8_t RB_I2C_MasterRX_IT(I2Cx_Handler_t *pI2CHandle,uint8_t* pRxBuffer, uint32
 	return busystate;
 }
 
+/********************************************************************
+ * @fn				- RB_I2C_SlaveTX
+ *
+ * @brief			- Transmit Data (Slave Mode)
+ *
+ * @param[in]		- a pointer on the I2C Structure
+ * @param[in]		- data to transmit
+ *
+ * @return 			- NONE
+ * @note			- NONE
+ */
+void RB_I2C_SlaveTX(I2Cx_t *pI2C,uint8_t data)
+{
+	pI2C->DR = data;
+}
+
+/********************************************************************
+ * @fn				- RB_I2C_SlaveRX
+ *
+ * @brief			- Receive Data (Slave Mode)
+ *
+ * @param[in]		- a pointer on the I2C Structure
+ *
+ * @return 			- Received data(1 byte)
+ * @note			- NONE
+ */
+uint8_t RB_I2C_SlaveRX(I2Cx_t *pI2C)
+{
+    return (uint8_t) pI2C->DR;
+}
 
 /*
  * I2C IRQ Configuration an ISR handling
@@ -836,6 +866,7 @@ void RB_I2C_ManageAcking(I2Cx_t *pI2Cx,uint8_t status){
 		pI2Cx->CR1 |= (1 << I2C_CR1_ACK);
 	}
 }
+
 
 /*
  * Call-Back Function

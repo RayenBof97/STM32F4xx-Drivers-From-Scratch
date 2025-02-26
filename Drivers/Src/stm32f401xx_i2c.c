@@ -837,6 +837,12 @@ void RB_I2C_ManageAcking(I2Cx_t *pI2Cx,uint8_t status){
 	}
 }
 
+/*
+ * Call-Back Function
+ */
+__weak void I2C_ApplicationEventCallback(I2Cx_Handler_t *pI2CHandle,uint8_t AppEv){
+
+}
 
 
 

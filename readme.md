@@ -1,3 +1,8 @@
+# Clone the Repository  
+If you're interested in exploring the code, you can clone this repository to your STM32CubeIDE workspace using the following command:  
+```bash
+git clone https://github.com/RayenBof97/stm32f4xx-driver.git  
+```
 
 # STM32F4xx GPIO Driver
 
@@ -5,19 +10,10 @@ This repository contains a custom driver library for STM32F4xx microcontrollers,
 
 For this, I'm using my Nucleo-F401RE board, and you can find its datasheet on the  [official STM32 website](https://www.st.com/en/evaluation-tools/nucleo-f401re.html) 
 
+## APIs References
 
-## Clone the Repository  
-If you're interested in exploring the code, you can clone this repository to your STM32CubeIDE workspace using the following command:  
-```bash
-git clone https://github.com/RayenBof97/stm32f4xx-driver.git  
-```
-
-
-## API Reference
-
-
-#### GPIO Initialization
-
+#### GPIO Initialization    
+**Definition :** initialize a specific GPIO Pin.
 ```c
 void RB_GPIO_Init(GPIOx_Handler_t *pGPIOHandle)
 ```
@@ -26,8 +22,20 @@ void RB_GPIO_Init(GPIOx_Handler_t *pGPIOHandle)
 | :------------------- | :--------------- | :-------------------------------------------------- |
 | `pGPIOHandle`        | `GPIOx_Handler_t*` | **Required**. Pointer to the GPIO handler structure containing the configuration for the GPIO pin. |
 
-#### GPIO Clock Control
 
+#### GPIO Deinitialization
+**Definition :** Deinitialize a specific GPIO port (reset all registers).
+```c
+void RB_GPIO_DeInit(GPIO_t *pGPIOx)
+```
+
+| Parameter       | Type         | Description |
+| :-------------- | :----------- | :-------------------------------------------------- |
+| pGPIOx          | GPIO_t*      | **Required**. Pointer to the GPIO structure. |
+
+
+#### GPIO Clock Control
+**Definition :** This function enable or disable the GPIO peripheral clock.
 ```c
 void RB_GPIO_PeriClockControl(GPIOx_t *pGPIOx, uint8_t State)
 ```
@@ -37,8 +45,9 @@ void RB_GPIO_PeriClockControl(GPIOx_t *pGPIOx, uint8_t State)
 | `pGPIOx`             | `GPIOx_t*`       | **Required**. Pointer to the GPIO port (e.g., `GPIOA`). |
 | `State`              | `uint8_t`        | **Required**. State to enable (`SET`) or disable (`RESET`) the GPIO peripheral clock. |
 
-#### GPIO Pin Data Read
 
+#### GPIO Pin Data Read
+**Definition :** Read the state of a GPIO Pin.
 ```c
 uint8_t RB_GPIO_ReadInputPin(GPIOx_t *pGPIOx, uint8_t PinNumber)
 ```
@@ -47,9 +56,24 @@ uint8_t RB_GPIO_ReadInputPin(GPIOx_t *pGPIOx, uint8_t PinNumber)
 | :------------------- | :--------------- | :-------------------------------------------------- |
 | `pGPIOx`             | `GPIOx_t*`       | **Required**. Pointer to the GPIO port (e.g., `GPIOA`). |
 | `PinNumber`          | `uint8_t`        | **Required**. GPIO pin number to read. |
+**Return :** The state of the pin (0,1)
+
+
+#### GPIO Port Data Read
+**Definition :** Read the state of a GPIO Port , returned in a 16bit Word (16pins).
+```c
+uint16_t RB_GPIO_ReadInputPort(GPIO_t *pGPIOx)
+```
+
+| Parameter       | Type         | Description |
+| :-------------- | :----------- | :-------------------------------------------------- |
+| pGPIOx          | GPIO_t*      | **Required**. Pointer to the GPIO structure. |
+
+**Return**: The state of all pins in portX (16Bits Word)
+
 
 #### GPIO Pin Data Write
-
+**Definition :** Write the state into a GPIO Pin.
 ```c
 void RB_GPIO_WriteOutputPin(GPIOx_t *pGPIOx, uint8_t PinNumber, uint8_t value)
 ```
@@ -60,8 +84,20 @@ void RB_GPIO_WriteOutputPin(GPIOx_t *pGPIOx, uint8_t PinNumber, uint8_t value)
 | `PinNumber`          | `uint8_t`        | **Required**. GPIO pin number to write to. |
 | `value`              | `uint8_t`        | **Required**. Value to write (either `GPIO_PIN_SET` or `GPIO_PIN_RESET`). |
 
-#### GPIO Pin Toggle
+#### GPIO Port Data Write
+**Definition :** Write the state of all pins in port (16bit Word).
+```c
+void RB_GPIO_WriteOutputPort(GPIO_t *pGPIOx, uint16_t value)
+```
 
+| Parameter       | Type         | Description |
+| :-------------- | :----------- | :-------------------------------------------------- |
+| pGPIOx          | GPIO_t*      | **Required**. Pointer to the GPIO structure. |
+| value           | uint16_t     | **Required**. Value to write to the GPIO port (ranging from 0x0000 to 0xFFFF). |
+
+
+#### GPIO Pin Toggle
+**Definition :** Toggle a pin (Invert the current state of the GPIO Pin).
 ```c
 void RB_GPIO_TogglePin(GPIOx_t *pGPIOx, uint8_t PinNumber)
 ```
@@ -71,8 +107,9 @@ void RB_GPIO_TogglePin(GPIOx_t *pGPIOx, uint8_t PinNumber)
 | `pGPIOx`             | `GPIOx_t*`       | **Required**. Pointer to the GPIO port (e.g., `GPIOA`). |
 | `PinNumber`          | `uint8_t`        | **Required**. GPIO pin number to toggle. |
 
-#### GPIO Interrupt Configuration
 
+#### GPIO Interrupt Request Enabling
+**Definition :** IRQ Enable on CPU (Refers to NVIC Part in Arm CortexM4 RM)
 ```c
 void RB_GPIO_IRQITConfig(uint8_t IRQNumber, uint8_t state)
 ```
@@ -82,8 +119,9 @@ void RB_GPIO_IRQITConfig(uint8_t IRQNumber, uint8_t state)
 | `IRQNumber`          | `uint8_t`        | **Required**. Interrupt request line (e.g., 6 for EXTI Line 0). |
 | `state`              | `uint8_t`        | **Required**. Enable (`ENABLE`) or Disable (`DISABLE`) the interrupt. |
 
-#### GPIO Interrupt Priority Configuration
 
+#### GPIO Interrupt Priority Configuration
+**Definition :** Configure the priority of the IRQ
 ```c
 void RB_GPIO_IRQPriorityConfig(uint8_t IRQNumber, uint32_t Priority)
 ```
@@ -92,6 +130,17 @@ void RB_GPIO_IRQPriorityConfig(uint8_t IRQNumber, uint32_t Priority)
 | :------------------- | :--------------- | :-------------------------------------------------- |
 | `IRQNumber`          | `uint8_t`        | **Required**. Interrupt request line (e.g., 6 for EXTI Line 0). |
 | `Priority`           | `uint32_t`       | **Required**. Interrupt priority (value between 0 and 15). |
+
+
+#### GPIO Interrupt Request (IRQ) Handling
+**Definition :** Handles the IRQ on GPIO Peripherals
+```c
+void RB_GPIO_IRQHandling(uint8_t PinNumber)
+```
+
+| Parameter       | Type         | Description |
+| :-------------- | :----------- | :-------------------------------------------------- |
+| PinNumber       | uint8_t      | **Required**. The GPIO pin number for which the IRQ is being handled. |
 
 ---
 
@@ -145,9 +194,101 @@ int main() {
     }
 }
 ```
+---
+# STM32F4xx UART Driver
+## API Reference
 
-## Contributing
+
+#### USART Initialization
+
+```c
+void RB_USART_Init(USARTx_Handler_t *pUSARTHandle)
+```
+
+| Parameter            | Type             | Description                                         |
+| :------------------- | :--------------- | :-------------------------------------------------- |
+| `pUSARTHandle`        | `USARTx_Handler_t*` | **Required**. Pointer to the USART handler structure containing the configuration for the USART peripheral. |
+
+#### USART Clock Control
+
+```c
+void RB_USART_PeriClockControl(USARTx_t *pUSARTx, uint8_t State)
+```
+
+| Parameter            | Type             | Description                                         |
+| :------------------- | :--------------- | :-------------------------------------------------- |
+| `pUSARTx`             | `USARTx_t*`       | **Required**. Pointer to the USART peripheral (e.g., `USART1`). |
+| `State`              | `uint8_t`        | **Required**. State to enable (`SET`) or disable (`RESET`) the USART peripheral clock. |
+
+#### USART Initialization
+
+```c
+void RB_USART_DeInit(USARTx_t *pUSARTx)
+```
+
+| Parameter            | Type             | Description                                         |
+| :------------------- | :--------------- | :-------------------------------------------------- |
+| `pUSARTx`        | `USARTx_t*` | **Required**. Pointer to the USART peripheral structure (e.g., `USART1`). |
+
+#### USART Data Transmission (Poll Mode)
+```c
+void RB_USART_Data_TX(USART_t *pUSARTx, uint8_t *pTxBuffer, uint16_t length)
+```
+
+| Parameter   | Type         | Description |
+| :---------- | :----------- | :-------------------------------------------------- |
+| pUSARTx    | USART_t*    | **Required**. Pointer to the USART structure. |
+| pTxBuffer  | uint8_t*    | **Required**. Buffer containing the data to be transmitted. |
+| length     | uint16_t    | **Required**. Length of the message to transmit. |
+
+**Note**: This API is a blocking call (polling mode).  
+
+#### USART Data Reception (Poll Mode)
+```c
+void RB_USART_Data_RX(USART_t *pUSARTx, uint8_t *pRxBuffer, uint16_t length)
+```
+
+| Parameter   | Type         | Description |
+| :---------- | :----------- | :-------------------------------------------------- |
+| pUSARTx     | USART_t*     | **Required**. Pointer to the USART structure. |
+| pRxBuffer   | uint8_t*     | **Required**. Buffer to store the received data. |
+| length      | uint16_t     | **Required**. Length of the message to be received. |
+
+**Note**: This API is also a blocking call (polling mode).
+
+#### USART Data Transmission (Interruption mode)
+```c
+void RB_USART_Data_TXIT(USART_Handle_t *pUSARTHandle, uint8_t *pTxBuffer, uint16_t length)
+```
+
+| Parameter       | Type           | Description |
+| :-------------- | :------------- | :-------------------------------------------------- |
+| pUSARTHandle    | USART_Handle_t* | **Required**. Pointer to the USART handle structure. |
+| pTxBuffer       | uint8_t*       | **Required**. Buffer containing the data to be transferred. |
+| length          | uint16_t       | **Required**. Length of the message to be transferred. |
+
+**Return**: The state of Tx (Check the states in stm32f401xx_usart.h header file).
+**Note**: This API is a non-blocking call (interrupt mode).
+
+#### USART Data Reception (Interruption mode)
+```c
+void RB_USART_Data_RXIT(USART_Handle_t *pUSARTHandle, uint8_t *pRxBuffer, uint16_t length)
+```
+
+| Parameter       | Type           | Description |
+| :-------------- | :------------- | :-------------------------------------------------- |
+| pUSARTHandle    | USART_Handle_t* | **Required**. Pointer to the USART handle structure. |
+| pRxBuffer       | uint8_t*       | **Required**. Buffer to store the received data. |
+| length          | uint16_t       | **Required**. Length of the message to be received. |
+
+**Return**: The state of Rx (Check the states in stm32f401xx_usart.h header file).
+**Note**: This API is also a non-blocking call (interrupt mode).
+
+#### USART Peripheral Control
+
+# Contributing
 Contributions are welcome! If you'd like to report bugs, suggest features, or submit improvements, please open an issue or create a pull request.
 
-## License
+
+# License
 This project is licensed under the MIT License. See the LICENSE file for details.

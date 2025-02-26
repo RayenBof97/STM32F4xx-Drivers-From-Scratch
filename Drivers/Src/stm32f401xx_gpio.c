@@ -159,7 +159,7 @@ void RB_GPIO_Init(GPIOx_Handler_t *pGPIOHandle){
 /********************************************************************
  * @fn				- RB_GPIO_DeInit
  *
- * @brief			- Deinitialize a specific GPIO pin (Reset all registers)
+ * @brief			- Deinitialize a specific GPIO port (Reset all registers)
  *
  * @param[in]		- a pointer to a GPIO Structure
  *
@@ -215,7 +215,7 @@ uint8_t RB_GPIO_ReadInputPin(GPIOx_t *pGPIOx, uint8_t PinNumber){
  *
  * @param[in]		- a pointer to a GPIO Structure
  *
- * @return 			- the state of the pin (0 or 1)
+ * @return 			- the state of all pins in portX
  *
  * @note			- NONE
  */
